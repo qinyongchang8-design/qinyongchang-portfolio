@@ -19,6 +19,8 @@ OUTPUT = ROOT / "docs"
 FFMPEG = Path(r"C:\Users\PC\AppData\Local\JianyingPro\Apps\11.1.0.14287\ffmpeg.exe")
 ASSET_PATTERN = re.compile(r"/assets/[^\"'\s<]+")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+# The opening hero and featured case share this clip. Keep its original detail for the first impression.
+HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
 
 
 def web_image(source: Path, target: Path) -> None:
@@ -97,6 +99,11 @@ def main() -> int:
 
         if source.suffix.lower() == ".mp4":
             target = output_assets / relative
+            if relative.name in HIGH_QUALITY_VIDEOS:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+                print(f"[{index}/{len(references)}] video  {relative} (original quality)", flush=True)
+                continue
             print(f"[{index}/{len(references)}] video  {relative}", flush=True)
             web_video(source, target)
             continue
