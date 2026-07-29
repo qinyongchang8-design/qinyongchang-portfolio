@@ -21,6 +21,8 @@ ASSET_PATTERN = re.compile(r"/assets/[^\"'\s<]+")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 # The opening hero and featured case share this clip. Keep its original detail for the first impression.
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
+# These two full-screen information boards need their original detail at desktop scale.
+HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.png"}
 
 
 def web_image(source: Path, target: Path) -> None:
@@ -109,6 +111,13 @@ def main() -> int:
             continue
 
         if source.suffix.lower() in IMAGE_EXTENSIONS:
+            if relative.name in HIGH_QUALITY_IMAGES:
+                target = output_assets / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+                html = html.replace(reference, "./assets/" + relative.as_posix())
+                print(f"[{index}/{len(references)}] image  {relative} (original quality)", flush=True)
+                continue
             target_relative = relative.with_suffix(".jpg")
             target = output_assets / target_relative
             print(f"[{index}/{len(references)}] image  {relative}", flush=True)
