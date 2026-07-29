@@ -19,12 +19,15 @@ OUTPUT = ROOT / "docs"
 FFMPEG = Path(r"C:\Users\PC\AppData\Local\JianyingPro\Apps\11.1.0.14287\ffmpeg.exe")
 ASSET_PATTERN = re.compile(r"/assets/[^\"'\s<]+")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-# The opening hero and featured case share this clip. Keep its original detail for the first impression.
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
-# These two full-screen information boards need their original detail at desktop scale.
-HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.jpg"}
+# These two full-screen information boards must remain in their original high-detail files.
+HIGH_QUALITY_IMAGES = {"about-confirmed.png", "contact-final.png"}
+# Preserve visible detail while still creating web-friendly video files. The opening film
+# receives a higher bitrate because it fills the entire first screen.
+DEFAULT_VIDEO_BITRATE = "2200k"
+VIDEO_BITRATES = {"game-ad-1.mp4": "4200k"}
 # A new URL makes browsers and the GitHub Pages CDN discard earlier web-optimised cache entries.
-HIGH_QUALITY_CACHE_VERSION = "20260729-hd"
+HIGH_QUALITY_CACHE_VERSION = "20260729-clear-boards"
 
 
 def web_image(source: Path, target: Path) -> None:
@@ -42,7 +45,7 @@ def web_image(source: Path, target: Path) -> None:
         image.save(target, "JPEG", quality=86, optimize=True, progressive=True)
 
 
-def web_video(source: Path, target: Path) -> None:
+def web_video(source: Path, target: Path, bitrate: str) -> None:
     """Make an H.264/fast-start playback copy for browsers and GitHub Pages."""
     target.parent.mkdir(parents=True, exist_ok=True)
     command = [
@@ -63,7 +66,7 @@ def web_video(source: Path, target: Path) -> None:
         "-rate_control",
         "cbr",
         "-b:v",
-        "1500k",
+        bitrate,
         "-c:a",
         "aac",
         "-b:a",
@@ -104,13 +107,8 @@ def main() -> int:
 
         if source.suffix.lower() == ".mp4":
             target = output_assets / relative
-            if relative.name in HIGH_QUALITY_VIDEOS:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, target)
-                print(f"[{index}/{len(references)}] video  {relative} (original quality)", flush=True)
-                continue
             print(f"[{index}/{len(references)}] video  {relative}", flush=True)
-            web_video(source, target)
+            web_video(source, target, VIDEO_BITRATES.get(relative.name, DEFAULT_VIDEO_BITRATE))
             continue
 
         if source.suffix.lower() in IMAGE_EXTENSIONS:
