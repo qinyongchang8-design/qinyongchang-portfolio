@@ -47,9 +47,12 @@
   const railLoopWidth=()=>Math.max(1,adRail.scrollWidth/2);
   const normaliseRail=()=>{const loop=railLoopWidth();railOffset=((railOffset%loop)+loop)%loop};
   const drawRail=()=>{normaliseRail();adRail.style.transform=`translate3d(${-railOffset}px,0,0)`};
-  const animateRail=time=>{if(!railVisible&&!railDragging){railFrame=0;railLastTime=0;return}if(!railLastTime)railLastTime=time;const elapsed=time-railLastTime;if(elapsed>=34){railLastTime=time;if(!railDragging&&!railVideoActive){railOffset+=railSpeed*Math.min(80,elapsed)/1000;drawRail()}}railFrame=requestAnimationFrame(animateRail)};
+  /* This is the only animation driving the buy-media rail. Keeping it compositor-only
+     avoids the former CSS-animation/JavaScript-animation conflict while dragging. */
+  const animateRail=time=>{if(document.hidden||(!railVisible&&!railDragging)){railFrame=0;railLastTime=0;return}if(!railLastTime)railLastTime=time;const elapsed=time-railLastTime;railLastTime=time;if(!railDragging&&!railVideoActive){railOffset+=railSpeed*Math.min(64,elapsed)/1000;drawRail()}railFrame=requestAnimationFrame(animateRail)};
   const resumeRail=()=>{if(!railFrame)railFrame=requestAnimationFrame(animateRail)};
   new IntersectionObserver(([entry])=>{railVisible=entry.isIntersecting;if(railVisible)resumeRail()},{threshold:0.02}).observe(adViewport);
+  document.addEventListener('visibilitychange',()=>{document.documentElement.classList.toggle('page-hidden',document.hidden);if(!document.hidden&&railVisible)resumeRail()});
   adRail.addEventListener('pointerdown',event=>{if(event.button!==0||event.target.closest('.rail-video-trigger,video'))return;railDragging=true;railMoved=false;railStartX=event.clientX;railStartOffset=railOffset;adRail.setPointerCapture(event.pointerId);adRail.classList.add('is-dragging')});
   adRail.addEventListener('pointermove',event=>{if(!railDragging)return;const shift=event.clientX-railStartX;if(Math.abs(shift)>7){railMoved=true;railOffset=railStartOffset-shift;drawRail()}});
   ['pointerup','pointercancel'].forEach(type=>adRail.addEventListener(type,event=>{if(!railDragging)return;railDragging=false;adRail.classList.remove('is-dragging');if(adRail.hasPointerCapture?.(event.pointerId))adRail.releasePointerCapture(event.pointerId);setTimeout(()=>railMoved=false,0)}));
@@ -86,18 +89,21 @@
   const hydrateVideo=video=>{if(video.src||!video.dataset.src)return;video.src=video.dataset.src;video.preload='metadata';video.load()};
   /* A small warm-up queue makes the next video ready without turning the page into 800MB of simultaneous downloads. */
   const warmedVideoSources=new Set(),warmVideoQueue=[];let activeVideoWarms=0;
-  const runVideoWarmQueue=()=>{while(activeVideoWarms<2&&warmVideoQueue.length){const video=warmVideoQueue.shift(),source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source))continue;warmedVideoSources.add(source);hydrateVideo(video);video.preload='auto';activeVideoWarms+=1;let released=false;const release=()=>{if(released)return;released=true;activeVideoWarms=Math.max(0,activeVideoWarms-1);runVideoWarmQueue()};video.addEventListener('canplay',release,{once:true});video.addEventListener('error',release,{once:true});setTimeout(release,4500);video.load()}};
-  const warmVideo=video=>{const source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source)||warmVideoQueue.includes(video))return;warmVideoQueue.unshift(video);runVideoWarmQueue()};
-  const videoLoader=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;hydrateVideo(entry.target);videoLoader.unobserve(entry.target)}),{rootMargin:'450px 0px',threshold:.01});
+  const passiveWarmBudget=3;
+  /* Warm one likely-to-be-played clip at a time. The old queue eagerly downloaded
+     every nearby movie, which competed with the video the visitor had just selected. */
+  const runVideoWarmQueue=()=>{while(activeVideoWarms<1&&warmVideoQueue.length){const video=warmVideoQueue.shift(),source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source))continue;warmedVideoSources.add(source);hydrateVideo(video);video.preload='auto';activeVideoWarms+=1;let released=false;const release=()=>{if(released)return;released=true;activeVideoWarms=Math.max(0,activeVideoWarms-1);runVideoWarmQueue()};video.addEventListener('canplay',release,{once:true});video.addEventListener('error',release,{once:true});setTimeout(release,2600);video.load()}};
+  const warmVideo=(video,priority=false)=>{const source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source)||warmVideoQueue.includes(video)||(!priority&&warmedVideoSources.size>=passiveWarmBudget))return;warmVideoQueue[priority?'unshift':'push'](video);runVideoWarmQueue()};
+  const videoLoader=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;hydrateVideo(entry.target);videoLoader.unobserve(entry.target)}),{rootMargin:'260px 0px',threshold:.01});
   deferredVideos.forEach(video=>videoLoader.observe(video));
-  const videoWarmObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;warmVideo(entry.target);videoWarmObserver.unobserve(entry.target)}),{rootMargin:'110px 0px',threshold:.45});
-  deferredVideos.forEach(video=>{videoWarmObserver.observe(video);video.addEventListener('pointerenter',()=>warmVideo(video),{once:true});video.addEventListener('focus',()=>warmVideo(video),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video),{once:true})});
+  const videoWarmObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;warmVideo(entry.target);videoWarmObserver.unobserve(entry.target)}),{rootMargin:'80px 0px',threshold:.5});
+  deferredVideos.forEach(video=>{videoWarmObserver.observe(video);video.addEventListener('pointerenter',()=>warmVideo(video,true),{once:true});video.addEventListener('focus',()=>warmVideo(video,true),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
   const visualSection=document.querySelector('.visual-section');
   if(visualSection){
     document.documentElement.classList.add('performance-observed');
     new IntersectionObserver(([entry])=>{visualSection.classList.toggle('visual-active',entry.isIntersecting);document.documentElement.classList.toggle('visual-active',entry.isIntersecting)},{rootMargin:'300px 0px',threshold:.01}).observe(visualSection);
     const marquees=[...visualSection.querySelectorAll('.marquee')];
-    const marqueeObserver=new IntersectionObserver(entries=>entries.forEach(entry=>entry.target.classList.toggle('marquee-active',entry.isIntersecting)),{rootMargin:'150px 0px',threshold:.01});
+    const marqueeObserver=new IntersectionObserver(entries=>entries.forEach(entry=>entry.target.classList.toggle('marquee-active',entry.isIntersecting)),{rootMargin:'0px',threshold:.3});
     marquees.forEach(marquee=>marqueeObserver.observe(marquee));
   }
   /* Cinematic motion system: mask-based opening and slow, sequenced chapter reveals. */
@@ -120,8 +126,11 @@
     cinematicRoots.forEach(root=>cinematicObserver.observe(root));
     const parallaxItems=[...document.querySelectorAll('.drama-poster img,.story-pair img')];
     parallaxItems.forEach(item=>item.classList.add('motion-parallax'));
+    const visibleParallaxItems=new Set();
+    const parallaxObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)visibleParallaxItems.add(entry.target);else visibleParallaxItems.delete(entry.target)}),{rootMargin:'120px 0px',threshold:0});
+    parallaxItems.forEach(item=>parallaxObserver.observe(item));
     let parallaxPending=false;
-    const updateParallax=()=>{parallaxPending=false;const viewport=window.innerHeight;parallaxItems.forEach(item=>{const rect=item.getBoundingClientRect();if(rect.bottom<-100||rect.top>viewport+100)return;const offset=Math.max(-18,Math.min(18,((rect.top+rect.height*.5-viewport*.5)/viewport)*-24));item.style.setProperty('--parallax-shift',`${offset.toFixed(2)}px`)})};
+    const updateParallax=()=>{parallaxPending=false;const viewport=window.innerHeight;visibleParallaxItems.forEach(item=>{const rect=item.getBoundingClientRect();const offset=Math.max(-18,Math.min(18,((rect.top+rect.height*.5-viewport*.5)/viewport)*-24));item.style.setProperty('--parallax-shift',`${offset.toFixed(2)}px`)})};
     window.addEventListener('scroll',()=>{if(!parallaxPending){parallaxPending=true;requestAnimationFrame(updateParallax)}},{passive:true});
     window.addEventListener('resize',updateParallax,{passive:true});
     updateParallax();

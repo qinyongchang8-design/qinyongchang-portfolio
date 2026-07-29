@@ -125,3 +125,12 @@ html{background:#020302}body{background:#020302;isolation:isolate}body::before,b
 
 /* Visual-development performance: thumbnail textures, contained paint and no offscreen compositing. */
 .visual-section{contain:layout paint style}.visual-flow{content-visibility:auto;contain-intrinsic-size:238px;contain:layout paint style}.visual-section .marquee{contain:paint}.visual-section .marquee-track{will-change:transform;transform:translate3d(0,0,0)}.visual-section .marquee img{filter:none;backface-visibility:hidden}html.performance-observed .visual-section .marquee-track{animation-play-state:paused!important}html.performance-observed .visual-section .marquee.marquee-active .marquee-track{animation-play-state:running!important}html.performance-observed .visual-section .marquee:hover .marquee-track{animation-play-state:paused!important}html.visual-active body::before{animation-play-state:paused}html.visual-active .cursor-splash{filter:blur(10px) saturate(1.18)!important}.cinematic-ready .motion-settled .kinetic-line,.cinematic-ready .motion-settled .kinetic-card{will-change:auto}@media(max-width:760px){.visual-flow{contain-intrinsic-size:210px}}
+
+/* Performance pass: preserve the motion language, but spend GPU and bandwidth only
+   on the part of the portfolio currently being viewed. */
+.ad-viewport .media-rail{animation:none!important;will-change:transform;transform:translate3d(0,0,0)}
+.visual-section .marquee-track{animation-play-state:paused!important}
+.visual-section .marquee.marquee-active .marquee-track{animation-play-state:running!important}
+html.page-hidden .marquee-track,html.page-hidden .hero-orbit i,html.page-hidden body::before{animation-play-state:paused!important}
+html.visual-active .splash-cursor-layer{visibility:hidden}
+@media (max-width:900px){.cursor-splash{filter:blur(9px)!important}.visual-section .marquee-track{will-change:auto}}
