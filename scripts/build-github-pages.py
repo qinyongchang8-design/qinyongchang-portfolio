@@ -23,6 +23,8 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
 # These two full-screen information boards need their original detail at desktop scale.
 HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.png"}
+# A new URL makes browsers and the GitHub Pages CDN discard earlier web-optimised cache entries.
+HIGH_QUALITY_CACHE_VERSION = "20260729-hd"
 
 
 def web_image(source: Path, target: Path) -> None:
@@ -130,6 +132,11 @@ def main() -> int:
         shutil.copy2(source, target)
 
     html = html.replace('"/assets/', '"./assets/')
+    for asset_name in sorted(HIGH_QUALITY_VIDEOS | HIGH_QUALITY_IMAGES):
+        html = html.replace(
+            f'./assets/{asset_name}"',
+            f'./assets/{asset_name}?v={HIGH_QUALITY_CACHE_VERSION}"',
+        )
     # GitHub Pages serves docs as the site root. The current preview is the real portfolio entry.
     (OUTPUT / "index.html").write_text(html, encoding="utf-8")
     (OUTPUT / ".nojekyll").touch()
