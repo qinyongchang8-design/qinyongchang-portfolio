@@ -85,6 +85,12 @@
   new IntersectionObserver(entries=>{const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(visible)setActiveNav(visible.target.id)},{rootMargin:'-26% 0px -62% 0px',threshold:[.08,.22,.45]}).observe(document.querySelector('#home'));
   document.querySelectorAll('main > section[id]:not(#home)').forEach(section=>new IntersectionObserver(entries=>{const entry=entries.find(item=>item.isIntersecting);if(entry)setActiveNav(entry.target.id)},{rootMargin:'-26% 0px -62% 0px',threshold:[.08,.22,.45]}).observe(section));
   /* Load heavy media only near the viewport; original sources remain available for the full-screen viewer. */
+  /* New, user-supplied web masters keep their filenames. Version the request so a
+     returning visitor never receives the previous low-bitrate GitHub Pages cache. */
+  const mediaCacheVersion='20260729-media-refresh';
+  const versionMediaSource=source=>source?`${source}${source.includes('?')?'&':'?'}v=${mediaCacheVersion}`:source;
+  document.querySelectorAll('main video[data-src]').forEach(video=>video.dataset.src=versionMediaSource(video.dataset.src));
+  document.querySelectorAll('.watch-button[href]').forEach(button=>button.setAttribute('href',versionMediaSource(button.getAttribute('href'))));
   const deferredVideos=[...document.querySelectorAll('main video[data-src]')];
   const hydrateVideo=video=>{if(video.src||!video.dataset.src)return;video.src=video.dataset.src;video.preload='metadata';video.load()};
   /* A small warm-up queue makes the next video ready without turning the page into 800MB of simultaneous downloads. */
