@@ -10,7 +10,7 @@ OUTPUT_HTML = ROOT / "docs" / "index.html"
 ASSETS = ROOT / "public" / "assets"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
-HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.png"}
+HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.jpg"}
 CACHE_VERSION = "20260729-hd"
 ASSET_PATTERN = re.compile(r"/assets/[^\"'\s<]+")
 
@@ -19,7 +19,8 @@ def main() -> None:
     html = SOURCE_HTML.read_text(encoding="utf-8")
     html = html.replace('href="/src/styles.css"', 'href="./src/styles.css"')
 
-    for reference in sorted(set(ASSET_PATTERN.findall(html))):
+    # Ignore JavaScript template strings used to derive poster paths at runtime.
+    for reference in sorted(reference for reference in set(ASSET_PATTERN.findall(html)) if "${" not in reference):
         relative = Path(reference.removeprefix("/assets/"))
         source = ASSETS / relative
         if not source.exists():

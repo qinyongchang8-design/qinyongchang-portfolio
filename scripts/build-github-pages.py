@@ -22,7 +22,7 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 # The opening hero and featured case share this clip. Keep its original detail for the first impression.
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
 # These two full-screen information boards need their original detail at desktop scale.
-HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.png"}
+HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.jpg"}
 # A new URL makes browsers and the GitHub Pages CDN discard earlier web-optimised cache entries.
 HIGH_QUALITY_CACHE_VERSION = "20260729-hd"
 
@@ -86,7 +86,8 @@ def main() -> int:
     html = SOURCE_HTML.read_text(encoding="utf-8")
     # GitHub project Pages live below /<repository>/, so published assets must be relative.
     html = html.replace('href="/src/styles.css"', 'href="./src/styles.css"')
-    references = sorted(set(ASSET_PATTERN.findall(html)))
+    # Ignore JavaScript template strings used to derive poster paths at runtime.
+    references = sorted(reference for reference in set(ASSET_PATTERN.findall(html)) if "${" not in reference)
     if not references:
         raise RuntimeError("No /assets references were found in preview.html.")
 

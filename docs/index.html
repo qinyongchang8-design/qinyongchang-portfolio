@@ -78,7 +78,7 @@
   const gooeyIndicator=document.createElement('span');gooeyIndicator.className='nav-gooey-indicator';navLinksWrap.appendChild(gooeyIndicator);
   const moveGooeyNav=(link,burst=false)=>{if(!link)return;const wrapRect=navLinksWrap.getBoundingClientRect(),linkRect=link.getBoundingClientRect();gooeyIndicator.style.left=`${linkRect.left-wrapRect.left}px`;gooeyIndicator.style.top=`${linkRect.top-wrapRect.top}px`;gooeyIndicator.style.width=`${linkRect.width}px`;gooeyIndicator.style.height=`${linkRect.height}px`;if(!burst)return;for(let i=0;i<7;i++){const particle=document.createElement('i'),angle=(Math.PI*2/7)*i+(Math.random()-.5)*.42,distance=18+Math.random()*22;particle.className='nav-gooey-particle';particle.style.left=`${linkRect.left-wrapRect.left+linkRect.width/2}px`;particle.style.top=`${linkRect.top-wrapRect.top+linkRect.height/2}px`;particle.style.setProperty('--gooey-x',`${Math.cos(angle)*distance}px`);particle.style.setProperty('--gooey-y',`${Math.sin(angle)*distance*.72}px`);particle.style.setProperty('--gooey-delay',`${Math.round(Math.random()*55)}ms`);navLinksWrap.appendChild(particle);particle.addEventListener('animationend',()=>particle.remove(),{once:true})}};
   const setActiveNav=(id,burst=false)=>{let activeLink;navLinks.forEach(link=>{const active=link.getAttribute('href')===`#${id}`;link.classList.toggle('is-active',active);if(active)activeLink=link});requestAnimationFrame(()=>moveGooeyNav(activeLink,burst))};
-  const contactPage=document.getElementById('contact');if(contactPage){contactPage.className='contact-image-page';contactPage.innerHTML='<img src="./assets/contact-final.png?v=20260729-hd" alt="联系秦永昌：电话 176 5598 5812，邮箱 1251389612@qq.com" draggable="false">'}
+  const contactPage=document.getElementById('contact');if(contactPage){contactPage.className='contact-image-page';contactPage.innerHTML='<img src="./assets/contact-final.jpg?v=20260729-hd" alt="联系秦永昌：电话 176 5598 5812，邮箱 1251389612@qq.com" draggable="false">'}
   setActiveNav(location.hash.slice(1)||'home');
   navLinks.forEach(link=>link.addEventListener('click',()=>setActiveNav(link.getAttribute('href').slice(1),true)));
   window.addEventListener('resize',()=>moveGooeyNav(navLinks.find(link=>link.classList.contains('is-active'))));
@@ -92,6 +92,9 @@
   document.querySelectorAll('main video[data-src]').forEach(video=>video.dataset.src=versionMediaSource(video.dataset.src));
   document.querySelectorAll('.watch-button[href]').forEach(button=>button.setAttribute('href',versionMediaSource(button.getAttribute('href'))));
   const deferredVideos=[...document.querySelectorAll('main video[data-src]')];
+  /* Video cards are poster-first: scrolling the portfolio never starts a fleet of
+     decoders or network requests. The full movie is prepared only on intent. */
+  deferredVideos.forEach(video=>{const filename=(video.dataset.src||'').split('/').pop().split('?')[0];if(filename)video.poster=`./assets/posters/${filename.replace(/\.mp4$/i,'.jpg')}`});
   const hydrateVideo=video=>{if(video.src||!video.dataset.src)return;video.src=video.dataset.src;video.preload='metadata';video.load()};
   /* A small warm-up queue makes the next video ready without turning the page into 800MB of simultaneous downloads. */
   const warmedVideoSources=new Set(),warmVideoQueue=[];let activeVideoWarms=0;
@@ -100,10 +103,7 @@
      every nearby movie, which competed with the video the visitor had just selected. */
   const runVideoWarmQueue=()=>{while(activeVideoWarms<1&&warmVideoQueue.length){const video=warmVideoQueue.shift(),source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source))continue;warmedVideoSources.add(source);hydrateVideo(video);video.preload='auto';activeVideoWarms+=1;let released=false;const release=()=>{if(released)return;released=true;activeVideoWarms=Math.max(0,activeVideoWarms-1);runVideoWarmQueue()};video.addEventListener('canplay',release,{once:true});video.addEventListener('error',release,{once:true});setTimeout(release,2600);video.load()}};
   const warmVideo=(video,priority=false)=>{const source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source)||warmVideoQueue.includes(video)||(!priority&&warmedVideoSources.size>=passiveWarmBudget))return;warmVideoQueue[priority?'unshift':'push'](video);runVideoWarmQueue()};
-  const videoLoader=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;hydrateVideo(entry.target);videoLoader.unobserve(entry.target)}),{rootMargin:'260px 0px',threshold:.01});
-  deferredVideos.forEach(video=>videoLoader.observe(video));
-  const videoWarmObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;warmVideo(entry.target);videoWarmObserver.unobserve(entry.target)}),{rootMargin:'80px 0px',threshold:.5});
-  deferredVideos.forEach(video=>{videoWarmObserver.observe(video);video.addEventListener('pointerenter',()=>warmVideo(video,true),{once:true});video.addEventListener('focus',()=>warmVideo(video,true),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
+  deferredVideos.forEach(video=>{video.addEventListener('pointerenter',()=>warmVideo(video,true),{once:true});video.addEventListener('focus',()=>warmVideo(video,true),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
   const visualSection=document.querySelector('.visual-section');
   if(visualSection){
     document.documentElement.classList.add('performance-observed');
@@ -146,6 +146,9 @@
   const brandVideo=document.querySelector('.brand-feature video');if(brandVideo)brandVideo.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openNativeBrandVideo(brandVideo.currentSrc||brandVideo.src||brandVideo.dataset.src)},true);
   adRail.addEventListener('pointerover',event=>{if(event.target.matches('video'))railVideoActive=true});
   adRail.addEventListener('pointerout',event=>{if(event.target.matches('video'))railVideoActive=false});
+  /* Rail videos intentionally ignore direct pointer events while the strip is draggable.
+     Open the card itself on a tap/click that was not a drag. */
+  adRail.addEventListener('click',event=>{if(railMoved)return;const card=event.target.closest('.video-card'),video=card?.querySelector('video');if(video)openMedia('video',video.currentSrc||video.src||video.dataset.src)});
   document.querySelectorAll('.drama-poster img,.story-pair img,.marquee img').forEach(image=>image.addEventListener('click',()=>openMedia('image',image.dataset.fullsrc||image.currentSrc||image.src,image.alt)));
   document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');const warmSource=()=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',warmSource,{once:true});button.addEventListener('focus',warmSource,{once:true});button.addEventListener('pointerdown',warmSource,{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
   /* Lightweight SplashCursor: event-driven liquid trails, without a permanent WebGL simulation. */
