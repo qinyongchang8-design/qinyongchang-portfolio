@@ -1,0 +1,9 @@
+# Local source media and working files — the deployable web copies live in docs/.
+public/
+node_modules/
+tmp-encode-*.mp4
+preview-server*.log
+
+# Local tooling artifacts
+.DS_Store
+Thumbs.db
