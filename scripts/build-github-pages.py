@@ -78,6 +78,8 @@ def main() -> int:
         raise FileExistsError("docs already contains a build. Keep it for review or rename it before rebuilding.")
 
     html = SOURCE_HTML.read_text(encoding="utf-8")
+    # GitHub project Pages live below /<repository>/, so published assets must be relative.
+    html = html.replace('href="/src/styles.css"', 'href="./src/styles.css"')
     references = sorted(set(ASSET_PATTERN.findall(html)))
     if not references:
         raise RuntimeError("No /assets references were found in preview.html.")
@@ -104,13 +106,14 @@ def main() -> int:
             target = output_assets / target_relative
             print(f"[{index}/{len(references)}] image  {relative}", flush=True)
             web_image(source, target)
-            html = html.replace(reference, "/assets/" + target_relative.as_posix())
+            html = html.replace(reference, "./assets/" + target_relative.as_posix())
             continue
 
         target = output_assets / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
 
+    html = html.replace('"/assets/', '"./assets/')
     # GitHub Pages serves docs as the site root. The current preview is the real portfolio entry.
     (OUTPUT / "index.html").write_text(html, encoding="utf-8")
     (OUTPUT / ".nojekyll").touch()
