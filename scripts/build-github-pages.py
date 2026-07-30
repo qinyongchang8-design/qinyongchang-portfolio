@@ -21,13 +21,13 @@ ASSET_PATTERN = re.compile(r"/assets/[^\"'\s<]+")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
 # These two full-screen information boards must remain in their original high-detail files.
-HIGH_QUALITY_IMAGES = {"about-confirmed.png", "contact-final.png"}
+HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.jpg"}
 # Preserve visible detail while still creating web-friendly video files. The opening film
 # receives a higher bitrate because it fills the entire first screen.
 DEFAULT_VIDEO_BITRATE = "2200k"
 VIDEO_BITRATES = {"game-ad-1.mp4": "4200k"}
 # A new URL makes browsers and the GitHub Pages CDN discard earlier web-optimised cache entries.
-HIGH_QUALITY_CACHE_VERSION = "20260729-clear-boards"
+HIGH_QUALITY_CACHE_VERSION = "20260730-new-boards"
 
 
 def web_image(source: Path, target: Path) -> None:

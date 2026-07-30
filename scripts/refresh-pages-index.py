@@ -10,8 +10,8 @@ OUTPUT_HTML = ROOT / "docs" / "index.html"
 ASSETS = ROOT / "public" / "assets"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 HIGH_QUALITY_VIDEOS = {"game-ad-1.mp4"}
-HIGH_QUALITY_IMAGES = {"about-confirmed.png", "contact-final.png"}
-CACHE_VERSION = "20260729-clear-boards"
+HIGH_QUALITY_IMAGES = {"about-confirmed.jpg", "contact-final.jpg"}
+CACHE_VERSION = "20260730-new-boards"
 ASSET_PATTERN = re.compile(r"/assets/[^\"'\s<]+")
 
 
