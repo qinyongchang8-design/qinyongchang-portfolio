@@ -97,14 +97,16 @@
      decoders or network requests. The full movie is prepared only on intent. */
   deferredVideos.forEach(video=>{const filename=(video.dataset.src||'').split('/').pop().split('?')[0];if(filename)video.poster=`./assets/posters/${filename.replace(/\.mp4$/i,'.jpg')}`});
   const hydrateVideo=video=>{if(video.src||!video.dataset.src)return;video.src=video.dataset.src;video.preload='metadata';video.load()};
-  /* A small warm-up queue makes the next video ready without turning the page into 800MB of simultaneous downloads. */
+  /* Network-aware, bounded warming: hovering fetches only metadata; pressing a card
+     upgrades that one clip. This prevents a slow connection from downloading every
+     video the cursor happens to cross. */
+  const connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const constrainedNetwork=Boolean(connection?.saveData)||/2g|3g/.test(connection?.effectiveType||'');
+  const warmBudget=constrainedNetwork?1:3;
   const warmedVideoSources=new Set(),warmVideoQueue=[];let activeVideoWarms=0;
-  const passiveWarmBudget=3;
-  /* Warm one likely-to-be-played clip at a time. The old queue eagerly downloaded
-     every nearby movie, which competed with the video the visitor had just selected. */
-  const runVideoWarmQueue=()=>{while(activeVideoWarms<1&&warmVideoQueue.length){const video=warmVideoQueue.shift(),source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source))continue;warmedVideoSources.add(source);hydrateVideo(video);video.preload='auto';activeVideoWarms+=1;let released=false;const release=()=>{if(released)return;released=true;activeVideoWarms=Math.max(0,activeVideoWarms-1);runVideoWarmQueue()};video.addEventListener('canplay',release,{once:true});video.addEventListener('error',release,{once:true});setTimeout(release,2600);video.load()}};
-  const warmVideo=(video,priority=false)=>{const source=video.currentSrc||video.src||video.dataset.src;if(!source||warmedVideoSources.has(source)||warmVideoQueue.includes(video)||(!priority&&warmedVideoSources.size>=passiveWarmBudget))return;warmVideoQueue[priority?'unshift':'push'](video);runVideoWarmQueue()};
-  deferredVideos.forEach(video=>{video.addEventListener('pointerenter',()=>warmVideo(video,true),{once:true});video.addEventListener('focus',()=>warmVideo(video,true),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
+  const runVideoWarmQueue=()=>{while(activeVideoWarms<1&&warmVideoQueue.length){const task=warmVideoQueue.shift(),video=task.video,source=task.source;if(!source)continue;hydrateVideo(video);video.preload=task.eager?'auto':'metadata';activeVideoWarms+=1;let released=false;const release=()=>{if(released)return;released=true;activeVideoWarms=Math.max(0,activeVideoWarms-1);runVideoWarmQueue()};video.addEventListener(task.eager?'canplay':'loadedmetadata',release,{once:true});video.addEventListener('error',release,{once:true});setTimeout(release,task.eager?1800:700);video.load()}};
+  const warmVideo=(video,eager=false)=>{const source=video.currentSrc||video.src||video.dataset.src;if(!source)return;if(warmedVideoSources.has(source)){if(eager&&video.preload!=='auto'){hydrateVideo(video);video.preload='auto';video.load()}return}if(warmVideoQueue.some(task=>task.source===source)||warmedVideoSources.size>=warmBudget)return;warmedVideoSources.add(source);warmVideoQueue[eager?'unshift':'push']({video,source,eager});runVideoWarmQueue()};
+  deferredVideos.forEach(video=>{video.addEventListener('pointerenter',()=>warmVideo(video),{once:true});video.addEventListener('focus',()=>warmVideo(video),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
   const visualSection=document.querySelector('.visual-section');
   if(visualSection){
     document.documentElement.classList.add('performance-observed');
@@ -151,9 +153,10 @@
      Open the card itself on a tap/click that was not a drag. */
   adRail.addEventListener('click',event=>{if(railMoved)return;const card=event.target.closest('.video-card'),video=card?.querySelector('video');if(video)openMedia('video',video.currentSrc||video.src||video.dataset.src)});
   document.querySelectorAll('.drama-poster img,.story-pair img,.marquee img').forEach(image=>image.addEventListener('click',()=>openMedia('image',image.dataset.fullsrc||image.currentSrc||image.src,image.alt)));
-  document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');const warmSource=()=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',warmSource,{once:true});button.addEventListener('focus',warmSource,{once:true});button.addEventListener('pointerdown',warmSource,{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
+  document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');const warmSource=eager=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer,eager)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',()=>warmSource(false),{once:true});button.addEventListener('focus',()=>warmSource(false),{once:true});button.addEventListener('pointerdown',()=>warmSource(true),{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
   /* Lightweight SplashCursor: event-driven liquid trails, without a permanent WebGL simulation. */
-  const splashMediaFine=matchMedia('(pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const constrainedDevice=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory&&navigator.deviceMemory<=4);
+  const splashMediaFine=matchMedia('(pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!constrainedDevice;
   if(splashMediaFine){
     const splashLayer=document.createElement('div');splashLayer.className='splash-cursor-layer';
     const splashCore=document.createElement('i');splashCore.className='splash-cursor-core';splashLayer.appendChild(splashCore);document.body.appendChild(splashLayer);
