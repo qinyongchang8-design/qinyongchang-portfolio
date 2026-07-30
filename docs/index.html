@@ -104,6 +104,10 @@
   stage.addEventListener('pointercancel',()=>{fallbackSeekTarget=null});
   const sectionTargets={drama:'.drama-section',aigc:'.aigc-section',brand:'.brand-section',storyboard:'.storyboard-section',visual:'.visual-section'};
   Object.entries(sectionTargets).forEach(([id,selector])=>{const section=document.querySelector(selector);if(section)section.id=id});
+  /* Start the next chapter's quiet warm-up before it becomes visible. Navigation
+     jumps are promoted to the front of the same queue, so the requested work
+     always wins over a background preload. */
+  ['work','drama','aigc','brand'].forEach(id=>{const section=document.getElementById(id);if(!section)return;if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){warmSection(id);observer.disconnect()}},{rootMargin:'760px 0px',threshold:.01});observer.observe(section)}else setTimeout(()=>warmSection(id),900)});
   const navLinks=[...document.querySelectorAll('.nav-links a')];
   const navLinksWrap=document.querySelector('.nav-links');
   const gooeyIndicator=document.createElement('span');gooeyIndicator.className='nav-gooey-indicator';navLinksWrap.appendChild(gooeyIndicator);
@@ -111,7 +115,7 @@
   let activeNavId='';const setActiveNav=(id,burst=false)=>{if(!id||(!burst&&id===activeNavId))return;activeNavId=id;let activeLink;navLinks.forEach(link=>{const active=link.getAttribute('href')===`#${id}`;link.classList.toggle('is-active',active);if(active)activeLink=link});requestAnimationFrame(()=>moveGooeyNav(activeLink,burst))};
   const contactPage=document.getElementById('contact');if(contactPage){contactPage.className='contact-image-page';contactPage.innerHTML=`<img src="${runtimeAssets}/contact-final.jpg?v=20260730-new-boards" alt="联系秦永昌：电话 176 5598 5812，邮箱 1251389612@qq.com" loading="lazy" decoding="async" draggable="false">`}
   setActiveNav(location.hash.slice(1)||'home');
-  navLinks.forEach(link=>link.addEventListener('click',()=>{const targetId=link.getAttribute('href').slice(1);setActiveNav(targetId,true);requestAnimationFrame(()=>{const target=document.getElementById(targetId),video=target?.querySelector('video[data-src]'),watch=target?.querySelector('.watch-button');if(video)warmVideo(video);else if(watch)warmVideo({dataset:{src:watch.getAttribute('href')}})})}));
+  navLinks.forEach(link=>link.addEventListener('click',()=>{const targetId=link.getAttribute('href').slice(1);setActiveNav(targetId,true);warmSection(targetId,true);requestAnimationFrame(()=>{const target=document.getElementById(targetId),video=target?.querySelector('video[data-src]'),watch=target?.querySelector('.watch-button');if(video)warmVideo(video,true);else if(watch)warmVideo({dataset:{src:watch.dataset.src||watch.getAttribute('href')}},true)})}));
   window.addEventListener('resize',()=>moveGooeyNav(navLinks.find(link=>link.classList.contains('is-active'))));
   new IntersectionObserver(entries=>{const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(visible)setActiveNav(visible.target.id)},{rootMargin:'-26% 0px -62% 0px',threshold:[.08,.22,.45]}).observe(document.querySelector('#home'));
   document.querySelectorAll('main > section[id]:not(#home)').forEach(section=>new IntersectionObserver(entries=>{const entry=entries.find(item=>item.isIntersecting);if(entry)setActiveNav(entry.target.id)},{rootMargin:'-26% 0px -62% 0px',threshold:[.08,.22,.45]}).observe(section));
@@ -143,10 +147,58 @@
   };
   const warmVideo=(video,eager=false)=>{
     if(modal.classList.contains('open'))return;const source=video.currentSrc||video.src||video.dataset.src;if(!source)return;
-    if(eager){clearTimeout(warmTimer);warmCandidate='';stageSharedVideo(source,true);return}
-    const next=versionMediaSource(source);if(next===sharedPlayerSource||next===warmCandidate)return;warmCandidate=next;clearTimeout(warmTimer);warmTimer=setTimeout(()=>{if(warmCandidate===next&&!modal.classList.contains('open'))stageSharedVideo(next,false)},90);
+    if(eager){pauseBackgroundWarm();clearTimeout(warmTimer);warmCandidate='';stageSharedVideo(source,true);return}
+    const next=versionMediaSource(source);if(next===sharedPlayerSource||next===warmCandidate)return;warmCandidate=next;clearTimeout(warmTimer);warmTimer=setTimeout(()=>{if(warmCandidate===next&&!modal.classList.contains('open')){pauseBackgroundWarm();stageSharedVideo(next,false)}},90);
   };
   deferredVideos.forEach(video=>{video.addEventListener('pointerenter',()=>warmVideo(video),{once:true});video.addEventListener('focus',()=>warmVideo(video),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
+
+  /* Free progressive media warm-up.  We never download the whole portfolio at
+     page load: as a visitor approaches a chapter, the hidden player gives its
+     unique clips a short, sequential head start.  That preserves page fluency
+     on normal networks while making the next click far more likely to open from
+     an already prepared connection/cache. */
+  const backgroundWarmQueue=[],backgroundWarmedSources=new Set(),backgroundQueuedSources=new Set(),warmSeenSections=new Set();
+  let backgroundWarmBusy=false,backgroundWarmSession=0,backgroundWarmTimer=0,backgroundWarmIdleId=0;
+  const connectionInfo=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const allowBackgroundWarm=!(connectionInfo?.saveData)||false;
+  const sourceListForSection=id=>{
+    const section=document.getElementById(id);if(!section)return[];
+    const sources=id==='drama'?[...section.querySelectorAll('.watch-button')].map(button=>button.dataset.src||button.getAttribute('href')):[...section.querySelectorAll('video[data-src]')].map(video=>video.dataset.src);
+    return [...new Set(sources.filter(Boolean).map(versionMediaSource))];
+  };
+  const pauseBackgroundWarm=(clearQueue=false)=>{
+    backgroundWarmSession++;backgroundWarmBusy=false;clearTimeout(backgroundWarmTimer);
+    if(backgroundWarmIdleId&&'cancelIdleCallback'in window)cancelIdleCallback(backgroundWarmIdleId);
+    backgroundWarmIdleId=0;
+    if(clearQueue){backgroundWarmQueue.length=0;backgroundQueuedSources.clear()}
+  };
+  const runBackgroundWarm=()=>{
+    backgroundWarmIdleId=0;
+    if(backgroundWarmBusy||modal.classList.contains('open')||!allowBackgroundWarm)return;
+    const source=backgroundWarmQueue.shift();if(!source)return;
+    backgroundQueuedSources.delete(source);if(backgroundWarmedSources.has(source)){runBackgroundWarm();return}
+    backgroundWarmBusy=true;const session=++backgroundWarmSession;
+    const finish=()=>{
+      if(session!==backgroundWarmSession)return;
+      clearTimeout(backgroundWarmTimer);sharedModalPlayer.removeEventListener('canplay',onCanPlay);sharedModalPlayer.removeEventListener('error',finish);backgroundWarmedSources.add(source);backgroundWarmBusy=false;
+      if(!modal.classList.contains('open'))setTimeout(scheduleBackgroundWarm,260);
+    };
+    const onCanPlay=()=>{clearTimeout(backgroundWarmTimer);backgroundWarmTimer=setTimeout(finish,900)};
+    stageSharedVideo(source,true);sharedModalPlayer.addEventListener('canplay',onCanPlay,{once:true});sharedModalPlayer.addEventListener('error',finish,{once:true});
+    /* Do not let a slow connection get monopolised by a clip far down the page. */
+    backgroundWarmTimer=setTimeout(finish,3600);
+  };
+  const scheduleBackgroundWarm=()=>{
+    if(backgroundWarmBusy||backgroundWarmIdleId||modal.classList.contains('open')||!allowBackgroundWarm)return;
+    if('requestIdleCallback'in window)backgroundWarmIdleId=requestIdleCallback(runBackgroundWarm,{timeout:1100});else backgroundWarmIdleId=setTimeout(runBackgroundWarm,120);
+  };
+  const warmSection=(id,priority=false)=>{
+    if(!allowBackgroundWarm)return;const sources=sourceListForSection(id);if(!sources.length)return;
+    if(priority)pauseBackgroundWarm();
+    const pending=sources.filter(source=>!backgroundWarmedSources.has(source)&&!backgroundQueuedSources.has(source));
+    if(!warmSeenSections.has(id)||priority){warmSeenSections.add(id);if(priority){pending.slice().reverse().forEach(source=>{backgroundWarmQueue.unshift(source);backgroundQueuedSources.add(source)})}else pending.forEach(source=>{backgroundWarmQueue.push(source);backgroundQueuedSources.add(source)})}
+    scheduleBackgroundWarm();
+  };
 
   /* Reuse the warmed player inside the existing modal UI. The player controls keep
      their current appearance, but seeking now has one rAF-bounded code path. */
@@ -154,7 +206,7 @@
   function closeModal(){releaseSharedModalPlayer();stage.replaceChildren();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-active')}
   function openMedia(type,src,alt){
     if(type!=='video'){stage.replaceChildren();stage.innerHTML=`<img src="${src}" alt="${alt||'作品图片'}" draggable="false">`;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');return}
-    releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=false;try{player.currentTime=0}catch{};
+    pauseBackgroundWarm();releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=false;try{player.currentTime=0}catch{};
     const wrap=document.createElement('div');wrap.className='player-wrap is-buffering';
     const controls=document.createElement('div');controls.className='player-controls';controls.innerHTML='<button type="button" class="player-toggle" aria-label="暂停视频">Ⅱ</button><span class="player-current">00:00</span><div class="player-seek" role="slider" tabindex="0" aria-label="拖动视频进度"><i></i><b></b></div><span class="player-duration">00:00</span><button type="button" class="player-fullscreen" aria-label="全屏观看">⛶</button>';
     wrap.append(player,controls);stage.replaceChildren(wrap);
@@ -215,7 +267,7 @@
      Open the card itself on a tap/click that was not a drag. */
   adRail.addEventListener('click',event=>{if(railMoved)return;const card=event.target.closest('.video-card'),video=card?.querySelector('video');if(video)openMedia('video',video.currentSrc||video.src||video.dataset.src)});
   document.querySelectorAll('.drama-poster img,.story-pair img,.marquee img').forEach(image=>image.addEventListener('click',()=>openMedia('image',image.dataset.fullsrc||image.currentSrc||image.src,image.alt)));
-  document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');const warmSource=eager=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer,eager)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',()=>warmSource(false),{once:true});button.addEventListener('focus',()=>warmSource(false),{once:true});button.addEventListener('pointerdown',()=>warmSource(true),{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
+  document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');button.dataset.src=source;const warmSource=eager=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer,eager)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',()=>warmSource(false),{once:true});button.addEventListener('focus',()=>warmSource(false),{once:true});button.addEventListener('pointerdown',()=>warmSource(true),{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
   /* Lightweight SplashCursor: event-driven liquid trails, without a permanent WebGL simulation. */
   const constrainedDevice=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory&&navigator.deviceMemory<=4);
   const splashMediaFine=matchMedia('(pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!constrainedDevice;
