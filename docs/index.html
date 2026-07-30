@@ -17,7 +17,7 @@
 
   <section class="section-shell work-section" id="work">
     <div class="section-heading"><div class="section-index">02</div><div><p class="eyebrow">SELECTED WORK / 2026</p><h2>游戏商业化买量视频</h2></div><p class="section-detail">以高密度的视听表达捕获注意力，用结果反推创意迭代。</p></div>
-    <div class="lead-case"><div class="lead-case-copy"><p class="case-kicker">FEATURED CASE / 01</p><h3>《九霄仙府》</h3><p>参与游戏商业化买量广告的完整生产：创意策划、脚本拆解、分镜设计、AI 视觉生成与后期包装。围绕不同卖点持续测试、快速迭代。</p><dl><div><dt>我的职责</dt><dd>创意 / 分镜 / AI 视觉 / 剪辑包装</dd></div><div><dt>项目成果</dt><dd>累计制作 50+ 条投放素材</dd></div></dl></div><article class="video-card lead-video"><video preload="none" data-src="./assets/game-ad-1.mp4?v=20260730-new-boards" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>COMMERCIAL VIDEO / FEATURED</span><strong>九霄仙府 · 买量素材 01</strong></div></article></div>
+    <div class="lead-case"><div class="lead-case-copy"><p class="case-kicker">FEATURED CASE / 01</p><h3>《九霄仙府》</h3><p>参与游戏商业化买量广告的完整生产：创意策划、脚本拆解、分镜设计、AI 视觉生成与后期包装。围绕不同卖点持续测试、快速迭代。</p><dl><div><dt>我的职责</dt><dd>创意 / 分镜 / AI 视觉 / 剪辑包装</dd></div><div><dt>项目成果</dt><dd>持续输出商业化买量广告素材，形成完整视频制作 Workflow。</dd></div></dl></div><article class="video-card lead-video"><video preload="none" data-src="./assets/game-ad-1.mp4?v=20260730-new-boards" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>COMMERCIAL VIDEO / FEATURED</span><strong>九霄仙府 · 买量素材 01</strong></div></article></div>
     <div class="media-carousel"><div class="carousel-top"><div><p class="eyebrow">MORE PERFORMANCE CREATIVE</p><h3>不同卖点 · 同一目标</h3></div><div class="continuous-badge"><i></i> CONTINUOUS SHOWREEL</div></div><div class="ad-viewport"><div class="media-rail" id="adRail">
       <article class="video-card"><video preload="none" data-src="./assets/game-ad-1.mp4?v=20260730-new-boards" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>玄幻逆袭</span><strong>01</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/game-ad-2.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>爽感冲突</span><strong>02</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/game-ad-3.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>身份反转</span><strong>03</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/game-ad-4.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>成长叙事</span><strong>04</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/game-ad-5.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>高燃战斗</span><strong>05</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/game-ad-8.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>世界观氛围</span><strong>06</strong></div></article>
     </div></div></div>
@@ -38,6 +38,25 @@
 </main>
 <div class="media-modal" id="mediaModal" aria-hidden="true"><button class="modal-close" aria-label="关闭查看器">×</button><div class="modal-stage"></div><p class="modal-hint">点击空白处关闭 · ESC</p></div>
 <script>
+  /* preview.html can be opened directly as a file as well as through the local
+     preview server. Absolute /assets paths only work with a web server, so map
+     them to the project folder before the media behaviour is initialised. */
+  const localFilePreview=location.protocol==='file:';
+  const previewAssetPath=path=>{
+    if(!localFilePreview)return path;
+    if(path.startsWith('/assets/'))return `./public${path}`;
+    if(path.startsWith('./assets/'))return `./public/${path.slice(2)}`;
+    return path;
+  };
+  const runtimeAssets=localFilePreview?'./public/assets':'./assets';
+  if(localFilePreview){
+    document.querySelectorAll('[src],[data-src],[data-fullsrc],[href]').forEach(element=>{
+      ['src','data-src','data-fullsrc','href'].forEach(attribute=>{
+        const value=element.getAttribute(attribute);
+        if(value?.startsWith('/assets/'))element.setAttribute(attribute,previewAssetPath(value));
+      });
+    });
+  }
   const adRail=document.getElementById('adRail');
   const adViewport=adRail.closest('.ad-viewport');
   const originalRailCards=[...adRail.children];
@@ -78,7 +97,7 @@
   const gooeyIndicator=document.createElement('span');gooeyIndicator.className='nav-gooey-indicator';navLinksWrap.appendChild(gooeyIndicator);
   const moveGooeyNav=(link,burst=false)=>{if(!link)return;const wrapRect=navLinksWrap.getBoundingClientRect(),linkRect=link.getBoundingClientRect();gooeyIndicator.style.left=`${linkRect.left-wrapRect.left}px`;gooeyIndicator.style.top=`${linkRect.top-wrapRect.top}px`;gooeyIndicator.style.width=`${linkRect.width}px`;gooeyIndicator.style.height=`${linkRect.height}px`;if(!burst)return;for(let i=0;i<7;i++){const particle=document.createElement('i'),angle=(Math.PI*2/7)*i+(Math.random()-.5)*.42,distance=18+Math.random()*22;particle.className='nav-gooey-particle';particle.style.left=`${linkRect.left-wrapRect.left+linkRect.width/2}px`;particle.style.top=`${linkRect.top-wrapRect.top+linkRect.height/2}px`;particle.style.setProperty('--gooey-x',`${Math.cos(angle)*distance}px`);particle.style.setProperty('--gooey-y',`${Math.sin(angle)*distance*.72}px`);particle.style.setProperty('--gooey-delay',`${Math.round(Math.random()*55)}ms`);navLinksWrap.appendChild(particle);particle.addEventListener('animationend',()=>particle.remove(),{once:true})}};
   const setActiveNav=(id,burst=false)=>{let activeLink;navLinks.forEach(link=>{const active=link.getAttribute('href')===`#${id}`;link.classList.toggle('is-active',active);if(active)activeLink=link});requestAnimationFrame(()=>moveGooeyNav(activeLink,burst))};
-  const contactPage=document.getElementById('contact');if(contactPage){contactPage.className='contact-image-page';contactPage.innerHTML='<img src="./assets/contact-final.jpg?v=20260730-new-boards" alt="联系秦永昌：电话 176 5598 5812，邮箱 1251389612@qq.com" draggable="false">'}
+  const contactPage=document.getElementById('contact');if(contactPage){contactPage.className='contact-image-page';contactPage.innerHTML=`<img src="${runtimeAssets}/contact-final.jpg?v=20260730-new-boards" alt="联系秦永昌：电话 176 5598 5812，邮箱 1251389612@qq.com" draggable="false">`}
   setActiveNav(location.hash.slice(1)||'home');
   navLinks.forEach(link=>link.addEventListener('click',()=>setActiveNav(link.getAttribute('href').slice(1),true)));
   window.addEventListener('resize',()=>moveGooeyNav(navLinks.find(link=>link.classList.contains('is-active'))));
@@ -95,7 +114,7 @@
   const deferredVideos=[...document.querySelectorAll('main video[data-src]')];
   /* Video cards are poster-first: scrolling the portfolio never starts a fleet of
      decoders or network requests. The full movie is prepared only on intent. */
-  deferredVideos.forEach(video=>{const filename=(video.dataset.src||'').split('/').pop().split('?')[0];if(filename)video.poster=`./assets/posters/${filename.replace(/\.mp4$/i,'.jpg')}`});
+  deferredVideos.forEach(video=>{const filename=(video.dataset.src||'').split('/').pop().split('?')[0];if(filename)video.poster=`${runtimeAssets}/posters/${filename.replace(/\.mp4$/i,'.jpg')}`});
   const hydrateVideo=video=>{if(video.src||!video.dataset.src)return;video.src=video.dataset.src;video.preload='metadata';video.load()};
   /* Network-aware, bounded warming: hovering fetches only metadata; pressing a card
      upgrades that one clip. This prevents a slow connection from downloading every
