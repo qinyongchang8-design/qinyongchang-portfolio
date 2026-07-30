@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 /* Gooey-style navigation: a springy shared pill and short-lived bubbles on direct clicks. */
 .nav-wrap .nav-links{position:relative!important;isolation:isolate}.nav-wrap .nav-links a{position:relative!important;z-index:3}.nav-wrap .nav-links a.is-active{background:transparent!important;border-color:transparent!important;box-shadow:none!important;color:#101210!important}.nav-wrap .nav-links a.is-active b{color:#101210!important}.nav-gooey-indicator{position:absolute;z-index:1;display:block;border-radius:999px;background:var(--acid);box-shadow:0 0 0 3px rgba(217,255,87,.10),0 8px 19px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.34);pointer-events:none;will-change:left,top,width,height;transition:left 620ms linear(0,.068,.19 2.7%,.804 8.1%,1.037,1.199 13.2%,1.245,1.27 15.8%,1.274,1.272 17.4%,1.249 19.1%,.996 28%,.949,.928 33.3%,.926,.933 36.8%,1.001 45.6%,1.013,1.019 50.8%,1.018 54.4%,1 63.1%,.995 68%,1.001 85%,1),top 620ms linear(0,.068,.19 2.7%,.804 8.1%,1.037,1.199 13.2%,1.245,1.27 15.8%,1.274,1.272 17.4%,1.249 19.1%,.996 28%,.949,.928 33.3%,.926,.933 36.8%,1.001 45.6%,1.013,1.019 50.8%,1.018 54.4%,1 63.1%,.995 68%,1.001 85%,1),width 620ms cubic-bezier(.16,1,.3,1),height 620ms cubic-bezier(.16,1,.3,1)}.nav-gooey-indicator:after{content:'';position:absolute;inset:2px 5px auto;height:28%;border-radius:inherit;background:linear-gradient(90deg,rgba(255,255,255,.30),rgba(255,255,255,0));opacity:.8}.nav-gooey-particle{position:absolute;z-index:0;display:block;width:8px;height:8px;border-radius:50%;background:var(--acid);box-shadow:0 0 9px rgba(217,255,87,.44);pointer-events:none;transform:translate(-50%,-50%) scale(.15);animation:nav-gooey-particle 520ms cubic-bezier(.12,.74,.24,1) var(--gooey-delay,0ms) both}@keyframes nav-gooey-particle{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}28%{opacity:.94}100%{opacity:0;transform:translate(calc(-50% + var(--gooey-x)),calc(-50% + var(--gooey-y))) scale(.45)}}
 
@@ -134,3 +132,10 @@ html{background:#020302}body{background:#020302;isolation:isolate}body::before,b
 html.page-hidden .marquee-track,html.page-hidden .hero-orbit i,html.page-hidden body::before{animation-play-state:paused!important}
 html.visual-active .splash-cursor-layer{visibility:hidden}
 @media (max-width:900px){.cursor-splash{filter:blur(9px)!important}.visual-section .marquee-track{will-change:auto}}
+
+/* Runtime-only performance plumbing. It is visually inert: the preloader stays
+   outside the canvas and long-running effects pause only when covered or offscreen. */
+.media-preload-pool{position:fixed;right:-2px;bottom:-2px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;contain:strict;z-index:-1}
+.cinematic-ready .cinematic-chapter.is-kinetic .motion-parallax{animation-play-state:paused}
+.cinematic-ready .cinematic-chapter.is-kinetic .motion-parallax.is-parallax-visible{animation-play-state:running}
+html.modal-active body::before,html.modal-active .splash-cursor-layer{animation-play-state:paused;visibility:hidden}
