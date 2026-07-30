@@ -90,6 +90,7 @@
   const mediaCacheVersion='20260729-media-refresh';
   const versionMediaSource=source=>source?`${source}${source.includes('?')?'&':'?'}v=${mediaCacheVersion}`:source;
   document.querySelectorAll('main video[data-src]').forEach(video=>video.dataset.src=versionMediaSource(video.dataset.src));
+  document.querySelectorAll('.marquee img[data-fullsrc]').forEach(image=>{image.dataset.fullsrc=versionMediaSource(image.dataset.fullsrc.replace(/\.(png|jpe?g)$/i,'.jpg'))});
   document.querySelectorAll('.watch-button[href]').forEach(button=>button.setAttribute('href',versionMediaSource(button.getAttribute('href'))));
   const deferredVideos=[...document.querySelectorAll('main video[data-src]')];
   /* Video cards are poster-first: scrolling the portfolio never starts a fleet of
