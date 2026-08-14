@@ -12,7 +12,7 @@
   </section>
 
   <section class="about-image-page" id="profile" aria-label="关于秦永昌">
-    <img src="./assets/about-confirmed.jpg?v=20260730-new-boards" alt="秦永昌个人信息：教育背景、软件与 AI 技能、学术实践、自我介绍与擅长领域" loading="eager">
+    <img src="./assets/about-confirmed.jpg?v=20260730-new-boards" alt="秦永昌个人信息：教育背景、软件与 AI 技能、学术实践、自我介绍与擅长领域" loading="lazy" decoding="async" fetchpriority="low">
   </section>
 
   <section class="section-shell work-section" id="work">
@@ -49,6 +49,12 @@
     return path;
   };
   const runtimeAssets=localFilePreview?'./public/assets':'./assets';
+  /* Device and network capabilities are read once. Lower-power clients keep the
+     same layout but avoid creating continuous visual work they cannot display smoothly. */
+  const connectionInfo=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  const hardwareCores=navigator.hardwareConcurrency||4;
+  const constrainedDevice=hardwareCores<=6||(navigator.deviceMemory&&navigator.deviceMemory<=8)||connectionInfo?.saveData||['slow-2g','2g','3g'].includes(connectionInfo?.effectiveType);
+  document.documentElement.classList.toggle('low-power',Boolean(constrainedDevice));
   /* One stable URL per asset lets the hero, cards, preloader and modal share the
      same browser cache instead of downloading the same film under several URLs. */
   const mediaCacheVersion='20260730-new-boards';
@@ -78,36 +84,19 @@
   const drawRail=()=>{normaliseRail();adRail.style.transform=`translate3d(${-railOffset}px,0,0)`};
   /* This is the only animation driving the buy-media rail. Keeping it compositor-only
      avoids the former CSS-animation/JavaScript-animation conflict while dragging. */
-  const animateRail=time=>{if(document.hidden||(!railVisible&&!railDragging)){railFrame=0;railLastTime=0;return}if(!railLastTime)railLastTime=time;const elapsed=time-railLastTime;railLastTime=time;if(!railDragging&&!railVideoActive){railOffset+=railSpeed*Math.min(64,elapsed)/1000;drawRail()}railFrame=requestAnimationFrame(animateRail)};
+  const animateRail=time=>{if(document.hidden||document.body.classList.contains('modal-active')||(!railVisible&&!railDragging)){railFrame=0;railLastTime=0;return}if(!railLastTime)railLastTime=time;const elapsed=time-railLastTime;railLastTime=time;if(!railDragging&&!railVideoActive){railOffset+=railSpeed*Math.min(64,elapsed)/1000;drawRail()}railFrame=requestAnimationFrame(animateRail)};
   const resumeRail=()=>{if(!railFrame)railFrame=requestAnimationFrame(animateRail)};
   measureRail();requestAnimationFrame(measureRail);window.addEventListener('resize',measureRail,{passive:true});
   if('ResizeObserver'in window)new ResizeObserver(measureRail).observe(adViewport);
-  new IntersectionObserver(([entry])=>{railVisible=entry.isIntersecting;if(railVisible)resumeRail()},{threshold:0.02}).observe(adViewport);
+  new IntersectionObserver(([entry])=>{railVisible=entry.isIntersecting;adViewport.classList.toggle('rail-active',railVisible);if(railVisible)resumeRail()},{threshold:0.02}).observe(adViewport);
   document.addEventListener('visibilitychange',()=>{document.documentElement.classList.toggle('page-hidden',document.hidden);if(!document.hidden&&railVisible)resumeRail()});
   adRail.addEventListener('pointerdown',event=>{if(event.button!==0||event.target.closest('.rail-video-trigger,video'))return;railDragging=true;railMoved=false;railStartX=event.clientX;railStartOffset=railOffset;adRail.setPointerCapture(event.pointerId);adRail.classList.add('is-dragging')});
   adRail.addEventListener('pointermove',event=>{if(!railDragging)return;const shift=event.clientX-railStartX;if(Math.abs(shift)>7){railMoved=true;railOffset=railStartOffset-shift;drawRail()}});
   ['pointerup','pointercancel'].forEach(type=>adRail.addEventListener(type,event=>{if(!railDragging)return;railDragging=false;adRail.classList.remove('is-dragging');if(adRail.hasPointerCapture?.(event.pointerId))adRail.releasePointerCapture(event.pointerId);setTimeout(()=>railMoved=false,0)}));
   const modal=document.getElementById('mediaModal'),stage=modal.querySelector('.modal-stage');
-  function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');stage.innerHTML='';document.body.classList.remove('modal-active')}
   const formatTime=value=>{if(!Number.isFinite(value))return '00:00';const minutes=Math.floor(value/60);const seconds=Math.floor(value%60);return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`};
-  function openMedia(type,src,alt){stage.innerHTML=type==='video'?`<div class="player-wrap is-buffering"><video src="${src}" autoplay playsinline preload="auto" controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture></video><div class="player-loading" aria-live="polite"><i></i><span>正在准备播放</span></div><div class="player-controls"><button type="button" class="player-toggle" aria-label="暂停视频">Ⅱ</button><span class="player-current">00:00</span><div class="player-seek" role="slider" tabindex="0" aria-label="拖动视频进度"><i></i><b></b></div><span class="player-duration">00:00</span><button type="button" class="player-fullscreen" aria-label="全屏观看">⛶</button></div></div>`:`<img src="${src}" alt="${alt||'作品图片'}" draggable="false">`;if(type==='video'){const player=stage.querySelector('video'),wrap=stage.querySelector('.player-wrap'),toggle=stage.querySelector('.player-toggle'),seek=stage.querySelector('.player-seek'),fill=seek.querySelector('i'),thumb=seek.querySelector('b'),current=stage.querySelector('.player-current'),duration=stage.querySelector('.player-duration'),fullscreen=stage.querySelector('.player-fullscreen');let seeking=false;const setBuffering=busy=>wrap.classList.toggle('is-buffering',busy);const render=()=>{const total=player.duration||0,ratio=total?player.currentTime/total:0;current.textContent=formatTime(player.currentTime);duration.textContent=formatTime(total);fill.style.width=`${ratio*100}%`;thumb.style.left=`${ratio*100}%`;toggle.textContent=player.paused?'▶':'Ⅱ';toggle.setAttribute('aria-label',player.paused?'播放视频':'暂停视频')};const seekToPointer=event=>{if(!Number.isFinite(player.duration))return;const rect=seek.getBoundingClientRect(),ratio=Math.min(1,Math.max(0,(event.clientX-rect.left)/rect.width));player.currentTime=player.duration*ratio;render();event.preventDefault()};seek.addEventListener('pointerdown',event=>{seeking=true;seek.setPointerCapture(event.pointerId);seekToPointer(event)});seek.addEventListener('pointermove',event=>{if(seeking)seekToPointer(event)});['pointerup','pointercancel'].forEach(type=>seek.addEventListener(type,()=>seeking=false));seek.addEventListener('keydown',event=>{if(!Number.isFinite(player.duration))return;const step=Math.max(1,player.duration*.05);if(event.key==='ArrowLeft')player.currentTime=Math.max(0,player.currentTime-step);if(event.key==='ArrowRight')player.currentTime=Math.min(player.duration,player.currentTime+step);if(event.key==='Home')player.currentTime=0;if(event.key==='End')player.currentTime=player.duration;render()});player.addEventListener('loadedmetadata',render);player.addEventListener('timeupdate',render);player.addEventListener('play',render);player.addEventListener('pause',render);player.addEventListener('loadstart',()=>setBuffering(true));player.addEventListener('waiting',()=>setBuffering(true));player.addEventListener('stalled',()=>setBuffering(true));['loadeddata','canplay','playing'].forEach(event=>player.addEventListener(event,()=>setBuffering(false)));toggle.addEventListener('click',()=>player.paused?player.play():player.pause());fullscreen.addEventListener('click',()=>player.requestFullscreen?.());player.load();player.play().catch(()=>{});render()}modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active')}
-  let mouseSeekTarget=null;
-  const seekFromMouse=event=>{if(!mouseSeekTarget)return;const player=stage.querySelector('video'),seek=mouseSeekTarget;if(!player||!Number.isFinite(player.duration))return;const rect=seek.getBoundingClientRect(),ratio=Math.min(1,Math.max(0,(event.clientX-rect.left)/rect.width));player.currentTime=player.duration*ratio;seek.querySelector('i').style.width=`${ratio*100}%`;seek.querySelector('b').style.left=`${ratio*100}%`;event.preventDefault()};
-  stage.addEventListener('mousedown',event=>{const seek=event.target.closest?.('.player-seek');if(!seek)return;mouseSeekTarget=seek;seekFromMouse(event)});
-  document.addEventListener('mousemove',event=>seekFromMouse(event));
-  document.addEventListener('mouseup',()=>{mouseSeekTarget=null});
-  let fallbackSeekTarget=null;
-  const seekFromAnyPointer=event=>{if(!fallbackSeekTarget)return;const player=stage.querySelector('video'),seek=fallbackSeekTarget;if(!player||!Number.isFinite(player.duration))return;const rect=seek.getBoundingClientRect(),rawX=event.clientX||event.pageX||(event.screenX-window.screenX)||0,ratio=Math.min(1,Math.max(0,(rawX-rect.left)/rect.width));player.currentTime=player.duration*ratio;seek.querySelector('i').style.width=`${ratio*100}%`;seek.querySelector('b').style.left=`${ratio*100}%`;event.preventDefault()};
-  stage.addEventListener('pointerdown',event=>{const seek=event.target.closest?.('.player-seek');if(!seek)return;fallbackSeekTarget=seek;seekFromAnyPointer(event)});
-  stage.addEventListener('pointermove',event=>seekFromAnyPointer(event));
-  stage.addEventListener('pointerup',()=>{fallbackSeekTarget=null});
-  stage.addEventListener('pointercancel',()=>{fallbackSeekTarget=null});
   const sectionTargets={drama:'.drama-section',aigc:'.aigc-section',brand:'.brand-section',storyboard:'.storyboard-section',visual:'.visual-section'};
   Object.entries(sectionTargets).forEach(([id,selector])=>{const section=document.querySelector(selector);if(section)section.id=id});
-  /* Start the next chapter's quiet warm-up before it becomes visible. Navigation
-     jumps are promoted to the front of the same queue, so the requested work
-     always wins over a background preload. */
-  ['work','drama','aigc','brand'].forEach(id=>{const section=document.getElementById(id);if(!section)return;if('IntersectionObserver'in window){const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){warmSection(id);observer.disconnect()}},{rootMargin:'760px 0px',threshold:.01});observer.observe(section)}else setTimeout(()=>warmSection(id),900)});
   const navLinks=[...document.querySelectorAll('.nav-links a')];
   const navLinksWrap=document.querySelector('.nav-links');
   const gooeyIndicator=document.createElement('span');gooeyIndicator.className='nav-gooey-indicator';navLinksWrap.appendChild(gooeyIndicator);
@@ -115,7 +104,7 @@
   let activeNavId='';const setActiveNav=(id,burst=false)=>{if(!id||(!burst&&id===activeNavId))return;activeNavId=id;let activeLink;navLinks.forEach(link=>{const active=link.getAttribute('href')===`#${id}`;link.classList.toggle('is-active',active);if(active)activeLink=link});requestAnimationFrame(()=>moveGooeyNav(activeLink,burst))};
   const contactPage=document.getElementById('contact');if(contactPage){contactPage.className='contact-image-page';contactPage.innerHTML=`<img src="${runtimeAssets}/contact-final.jpg?v=20260730-new-boards" alt="联系秦永昌：电话 176 5598 5812，邮箱 1251389612@qq.com" loading="lazy" decoding="async" draggable="false">`}
   setActiveNav(location.hash.slice(1)||'home');
-  navLinks.forEach(link=>link.addEventListener('click',()=>{const targetId=link.getAttribute('href').slice(1);setActiveNav(targetId,true);warmSection(targetId,true);requestAnimationFrame(()=>{const target=document.getElementById(targetId),video=target?.querySelector('video[data-src]'),watch=target?.querySelector('.watch-button');if(video)warmVideo(video,true);else if(watch)warmVideo({dataset:{src:watch.dataset.src||watch.getAttribute('href')}},true)})}));
+  navLinks.forEach(link=>link.addEventListener('click',()=>{const targetId=link.getAttribute('href').slice(1);setActiveNav(targetId,true);requestAnimationFrame(()=>{const target=document.getElementById(targetId),video=target?.querySelector('video[data-src]'),watch=target?.querySelector('.watch-button');if(video)warmVideo(video,true);else if(watch)warmVideo({dataset:{src:watch.dataset.src||watch.getAttribute('href')}},true)})}));
   window.addEventListener('resize',()=>moveGooeyNav(navLinks.find(link=>link.classList.contains('is-active'))));
   new IntersectionObserver(entries=>{const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(visible)setActiveNav(visible.target.id)},{rootMargin:'-26% 0px -62% 0px',threshold:[.08,.22,.45]}).observe(document.querySelector('#home'));
   document.querySelectorAll('main > section[id]:not(#home)').forEach(section=>new IntersectionObserver(entries=>{const entry=entries.find(item=>item.isIntersecting);if(entry)setActiveNav(entry.target.id)},{rootMargin:'-26% 0px -62% 0px',threshold:[.08,.22,.45]}).observe(section));
@@ -123,6 +112,7 @@
      so an already-downloaded hero or preview is reused by the modal player. */
   const heroVideo=document.querySelector('.hero-video');
   if(heroVideo?.getAttribute('src')){const source=versionMediaSource(heroVideo.getAttribute('src'));if(heroVideo.getAttribute('src')!==source)heroVideo.src=source}
+  heroVideo?.addEventListener('animationend',event=>{if(event.animationName==='hero-video-settle')document.documentElement.classList.add('hero-motion-settled')},{once:true});
   document.querySelectorAll('main video[data-src]').forEach(video=>video.dataset.src=versionMediaSource(video.dataset.src));
   document.querySelectorAll('.marquee img[data-fullsrc]').forEach(image=>{image.dataset.fullsrc=versionMediaSource(image.dataset.fullsrc.replace(/\.(png|jpe?g)$/i,'.jpg'))});
   document.querySelectorAll('.watch-button[href]').forEach(button=>button.setAttribute('href',versionMediaSource(button.getAttribute('href'))));
@@ -130,7 +120,7 @@
   /* Card videos stay poster-first. Posters are applied only near the viewport, so
      sixteen thumbnails never compete with the opening film on a cold connection. */
   const posterForVideo=video=>{const filename=(video.dataset.src||'').split('/').pop().split('?')[0];return filename?`${runtimeAssets}/posters/${filename.replace(/\.mp4$/i,'.jpg')}`:''};
-  const posterObserver='IntersectionObserver'in window?new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;const video=entry.target,poster=posterForVideo(video);if(poster&&!video.poster)video.poster=poster;posterObserver.unobserve(video)}),{rootMargin:'850px 0px',threshold:.01}):null;
+  const posterObserver='IntersectionObserver'in window?new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;const video=entry.target,poster=posterForVideo(video);if(poster&&!video.poster)video.poster=poster;posterObserver.unobserve(video)}),{rootMargin:'380px 0px',threshold:.01}):null;
   deferredVideos.forEach(video=>{if(posterObserver)posterObserver.observe(video);else{const poster=posterForVideo(video);if(poster)video.poster=poster}});
 
   /* A single hidden player is warmed on intent, then moved into the modal. Unlike
@@ -147,66 +137,18 @@
   };
   const warmVideo=(video,eager=false)=>{
     if(modal.classList.contains('open'))return;const source=video.currentSrc||video.src||video.dataset.src;if(!source)return;
-    if(eager){pauseBackgroundWarm();clearTimeout(warmTimer);warmCandidate='';stageSharedVideo(source,true);return}
-    const next=versionMediaSource(source);if(next===sharedPlayerSource||next===warmCandidate)return;warmCandidate=next;clearTimeout(warmTimer);warmTimer=setTimeout(()=>{if(warmCandidate===next&&!modal.classList.contains('open')){pauseBackgroundWarm();stageSharedVideo(next,false)}},90);
+    if(eager){clearTimeout(warmTimer);warmCandidate='';stageSharedVideo(source,true);return}
+    const next=versionMediaSource(source);if(next===sharedPlayerSource||next===warmCandidate)return;warmCandidate=next;clearTimeout(warmTimer);warmTimer=setTimeout(()=>{if(warmCandidate===next&&!modal.classList.contains('open'))stageSharedVideo(next,false)},90);
   };
   deferredVideos.forEach(video=>{video.addEventListener('pointerenter',()=>warmVideo(video),{once:true});video.addEventListener('focus',()=>warmVideo(video),{once:true});video.addEventListener('pointerdown',()=>warmVideo(video,true),{once:true})});
 
-  /* Free progressive media warm-up.  We never download the whole portfolio at
-     page load: as a visitor approaches a chapter, the hidden player gives its
-     unique clips a short, sequential head start.  That preserves page fluency
-     on normal networks while making the next click far more likely to open from
-     an already prepared connection/cache. */
-  const backgroundWarmQueue=[],backgroundWarmedSources=new Set(),backgroundQueuedSources=new Set(),warmSeenSections=new Set();
-  let backgroundWarmBusy=false,backgroundWarmSession=0,backgroundWarmTimer=0,backgroundWarmIdleId=0;
-  const connectionInfo=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
-  const allowBackgroundWarm=!(connectionInfo?.saveData)||false;
-  const sourceListForSection=id=>{
-    const section=document.getElementById(id);if(!section)return[];
-    const sources=id==='drama'?[...section.querySelectorAll('.watch-button')].map(button=>button.dataset.src||button.getAttribute('href')):[...section.querySelectorAll('video[data-src]')].map(video=>video.dataset.src);
-    return [...new Set(sources.filter(Boolean).map(versionMediaSource))];
-  };
-  const pauseBackgroundWarm=(clearQueue=false)=>{
-    backgroundWarmSession++;backgroundWarmBusy=false;clearTimeout(backgroundWarmTimer);
-    if(backgroundWarmIdleId&&'cancelIdleCallback'in window)cancelIdleCallback(backgroundWarmIdleId);
-    backgroundWarmIdleId=0;
-    if(clearQueue){backgroundWarmQueue.length=0;backgroundQueuedSources.clear()}
-  };
-  const runBackgroundWarm=()=>{
-    backgroundWarmIdleId=0;
-    if(backgroundWarmBusy||modal.classList.contains('open')||!allowBackgroundWarm)return;
-    const source=backgroundWarmQueue.shift();if(!source)return;
-    backgroundQueuedSources.delete(source);if(backgroundWarmedSources.has(source)){runBackgroundWarm();return}
-    backgroundWarmBusy=true;const session=++backgroundWarmSession;
-    const finish=()=>{
-      if(session!==backgroundWarmSession)return;
-      clearTimeout(backgroundWarmTimer);sharedModalPlayer.removeEventListener('canplay',onCanPlay);sharedModalPlayer.removeEventListener('error',finish);backgroundWarmedSources.add(source);backgroundWarmBusy=false;
-      if(!modal.classList.contains('open'))setTimeout(scheduleBackgroundWarm,260);
-    };
-    const onCanPlay=()=>{clearTimeout(backgroundWarmTimer);backgroundWarmTimer=setTimeout(finish,900)};
-    stageSharedVideo(source,true);sharedModalPlayer.addEventListener('canplay',onCanPlay,{once:true});sharedModalPlayer.addEventListener('error',finish,{once:true});
-    /* Do not let a slow connection get monopolised by a clip far down the page. */
-    backgroundWarmTimer=setTimeout(finish,3600);
-  };
-  const scheduleBackgroundWarm=()=>{
-    if(backgroundWarmBusy||backgroundWarmIdleId||modal.classList.contains('open')||!allowBackgroundWarm)return;
-    if('requestIdleCallback'in window)backgroundWarmIdleId=requestIdleCallback(runBackgroundWarm,{timeout:1100});else backgroundWarmIdleId=setTimeout(runBackgroundWarm,120);
-  };
-  const warmSection=(id,priority=false)=>{
-    if(!allowBackgroundWarm)return;const sources=sourceListForSection(id);if(!sources.length)return;
-    if(priority)pauseBackgroundWarm();
-    const pending=sources.filter(source=>!backgroundWarmedSources.has(source)&&!backgroundQueuedSources.has(source));
-    if(!warmSeenSections.has(id)||priority){warmSeenSections.add(id);if(priority){pending.slice().reverse().forEach(source=>{backgroundWarmQueue.unshift(source);backgroundQueuedSources.add(source)})}else pending.forEach(source=>{backgroundWarmQueue.push(source);backgroundQueuedSources.add(source)})}
-    scheduleBackgroundWarm();
-  };
-
   /* Reuse the warmed player inside the existing modal UI. The player controls keep
      their current appearance, but seeking now has one rAF-bounded code path. */
-  const releaseSharedModalPlayer=()=>{sharedPlayerCleanup();sharedPlayerCleanup=()=>{};if(stage.contains(sharedModalPlayer)){sharedModalPlayer.pause();sharedModalPlayer.controls=false;mediaPreloadPool.appendChild(sharedModalPlayer)}};
-  function closeModal(){releaseSharedModalPlayer();stage.replaceChildren();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-active')}
+  const releaseSharedModalPlayer=()=>{sharedPlayerCleanup();sharedPlayerCleanup=()=>{};if(stage.contains(sharedModalPlayer)){sharedModalPlayer.pause();sharedModalPlayer.preload='metadata';sharedModalPlayer.controls=false;mediaPreloadPool.appendChild(sharedModalPlayer)}};
+  function closeModal(){releaseSharedModalPlayer();stage.replaceChildren();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-active');if(railVisible)resumeRail()}
   function openMedia(type,src,alt){
     if(type!=='video'){stage.replaceChildren();stage.innerHTML=`<img src="${src}" alt="${alt||'作品图片'}" draggable="false">`;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');return}
-    pauseBackgroundWarm();releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=false;try{player.currentTime=0}catch{};
+    releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=false;try{player.currentTime=0}catch{};
     const wrap=document.createElement('div');wrap.className='player-wrap is-buffering';
     const controls=document.createElement('div');controls.className='player-controls';controls.innerHTML='<button type="button" class="player-toggle" aria-label="暂停视频">Ⅱ</button><span class="player-current">00:00</span><div class="player-seek" role="slider" tabindex="0" aria-label="拖动视频进度"><i></i><b></b></div><span class="player-duration">00:00</span><button type="button" class="player-fullscreen" aria-label="全屏观看">⛶</button>';
     wrap.append(player,controls);stage.replaceChildren(wrap);
@@ -246,20 +188,23 @@
     });
     const cinematicObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;entry.target.classList.add('is-kinetic');setTimeout(()=>entry.target.classList.add('motion-settled'),2300);cinematicObserver.unobserve(entry.target)}),{rootMargin:'-9% 0px -10% 0px',threshold:.14});
     cinematicRoots.forEach(root=>cinematicObserver.observe(root));
-    const parallaxItems=[...document.querySelectorAll('.drama-poster img,.story-pair img')];
-    parallaxItems.forEach(item=>item.classList.add('motion-parallax'));
-    const visibleParallaxItems=new Set();
-    const parallaxObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{entry.target.classList.toggle('is-parallax-visible',entry.isIntersecting);if(entry.isIntersecting)visibleParallaxItems.add(entry.target);else visibleParallaxItems.delete(entry.target)}),{rootMargin:'120px 0px',threshold:0});
-    parallaxItems.forEach(item=>parallaxObserver.observe(item));
-    let parallaxPending=false;
-    const updateParallax=()=>{parallaxPending=false;const viewport=window.innerHeight;visibleParallaxItems.forEach(item=>{const rect=item.getBoundingClientRect();const offset=Math.max(-18,Math.min(18,((rect.top+rect.height*.5-viewport*.5)/viewport)*-24));item.style.setProperty('--parallax-shift',`${offset.toFixed(2)}px`)})};
-    window.addEventListener('scroll',()=>{if(!parallaxPending){parallaxPending=true;requestAnimationFrame(updateParallax)}},{passive:true});
-    window.addEventListener('resize',updateParallax,{passive:true});
-    updateParallax();
+    /* The low-power stylesheet already keeps parallax still; avoid registering
+       its scroll measurements at all on those devices. */
+    if(!constrainedDevice){
+      const parallaxItems=[...document.querySelectorAll('.drama-poster img,.story-pair img')];
+      parallaxItems.forEach(item=>item.classList.add('motion-parallax'));
+      const visibleParallaxItems=new Set();
+      const parallaxObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{entry.target.classList.toggle('is-parallax-visible',entry.isIntersecting);if(entry.isIntersecting)visibleParallaxItems.add(entry.target);else visibleParallaxItems.delete(entry.target)}),{rootMargin:'120px 0px',threshold:0});
+      parallaxItems.forEach(item=>parallaxObserver.observe(item));
+      let parallaxPending=false;
+      const updateParallax=()=>{parallaxPending=false;const viewport=window.innerHeight;visibleParallaxItems.forEach(item=>{const rect=item.getBoundingClientRect();const offset=Math.max(-18,Math.min(18,((rect.top+rect.height*.5-viewport*.5)/viewport)*-24));item.style.setProperty('--parallax-shift',`${offset.toFixed(2)}px`)})};
+      window.addEventListener('scroll',()=>{if(!parallaxPending){parallaxPending=true;requestAnimationFrame(updateParallax)}},{passive:true});
+      window.addEventListener('resize',updateParallax,{passive:true});
+      updateParallax();
+    }
   }
   document.querySelectorAll('main video:not(.hero-video)').forEach(video=>{video.controls=false;video.setAttribute('controlslist','nodownload noplaybackrate noremoteplayback');video.setAttribute('disablepictureinpicture','');video.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openMedia('video',video.currentSrc||video.src||video.dataset.src)})});
-  let openNativeBrandVideo=src=>{stage.innerHTML=`<video class="brand-native-player" src="${src}" controls autoplay playsinline preload="auto" controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture></video>`;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active')};
-  openNativeBrandVideo=src=>{releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=true;try{player.currentTime=0}catch{};stage.replaceChildren(player);modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');player.play().catch(()=>{})};
+  const openNativeBrandVideo=src=>{releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=true;try{player.currentTime=0}catch{};stage.replaceChildren(player);modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');player.play().catch(()=>{})};
   const brandVideo=document.querySelector('.brand-feature video');if(brandVideo)brandVideo.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openNativeBrandVideo(brandVideo.currentSrc||brandVideo.src||brandVideo.dataset.src)},true);
   adRail.addEventListener('pointerover',event=>{if(event.target.matches('video'))railVideoActive=true});
   adRail.addEventListener('pointerout',event=>{if(event.target.matches('video'))railVideoActive=false});
@@ -269,7 +214,6 @@
   document.querySelectorAll('.drama-poster img,.story-pair img,.marquee img').forEach(image=>image.addEventListener('click',()=>openMedia('image',image.dataset.fullsrc||image.currentSrc||image.src,image.alt)));
   document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');button.dataset.src=source;const warmSource=eager=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer,eager)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',()=>warmSource(false),{once:true});button.addEventListener('focus',()=>warmSource(false),{once:true});button.addEventListener('pointerdown',()=>warmSource(true),{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
   /* Lightweight SplashCursor: event-driven liquid trails, without a permanent WebGL simulation. */
-  const constrainedDevice=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory&&navigator.deviceMemory<=4);
   const splashMediaFine=matchMedia('(pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!constrainedDevice;
   if(splashMediaFine){
     const splashLayer=document.createElement('div');splashLayer.className='splash-cursor-layer';
