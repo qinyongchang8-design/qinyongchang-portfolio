@@ -41,8 +41,8 @@
   .game-demo-section .section-heading h2{text-wrap:balance}
   .demo-grid{
     display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:clamp(16px,2.25vw,32px);
+    grid-template-columns:minmax(0,1.6fr) minmax(0,1.775fr);
+    gap:clamp(14px,1.8vw,26px);
     margin-top:clamp(22px,4vw,48px);
   }
   .demo-card{
@@ -52,8 +52,25 @@
     border-radius:22px 4px 22px 4px;
     background:linear-gradient(135deg,#1b2316,#101710 76%);
   }
-  .game-demo-section .demo-preview{aspect-ratio:16/10;border-radius:0;background:#080d09}
-  .game-demo-section .demo-preview video{object-fit:contain;filter:none;transform:none;pointer-events:none!important}
+  .demo-preview{
+    position:relative;
+    display:block;
+    width:100%;
+    aspect-ratio:8/5;
+    overflow:hidden;
+    background:#080d09;
+  }
+  .demo-card--godot .demo-preview{aspect-ratio:410/231}
+  .demo-preview video{
+    position:absolute;
+    inset:0;
+    display:block;
+    width:100%;
+    height:100%;
+    max-width:none;
+    object-fit:cover;
+    pointer-events:none!important;
+  }
   .demo-play{
     position:absolute;
     inset:0;
@@ -86,7 +103,7 @@
   }
   .demo-play:hover span,.demo-play:focus-visible span{background:var(--acid);color:#111810}
   .demo-play:focus-visible{outline:2px solid var(--acid);outline-offset:-4px}
-  .demo-copy{padding:clamp(17px,2.3vw,30px);border-top:1px solid rgba(217,255,87,.16)}
+  .demo-copy{padding:clamp(16px,1.8vw,25px);border-top:1px solid rgba(217,255,87,.16)}
   .demo-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .demo-engine{
     padding:5px 10px;
@@ -96,7 +113,7 @@
     font:500 12px var(--mono);
   }
   .demo-meta time{color:#c6ceba;font:12px var(--mono)}
-  .demo-copy h3{margin:15px 0 7px;color:#f1f2e8;font:500 clamp(21px,2.2vw,32px)/1.2 var(--serif)}
+  .demo-copy h3{margin:12px 0 6px;color:#f1f2e8;font:500 clamp(21px,2.2vw,32px)/1.2 var(--serif)}
   .demo-copy p{margin:0;color:#c1c9b8;font-size:14px;line-height:1.65}
 
   @media(max-width:760px){
@@ -148,7 +165,7 @@
     </div>
     <div class="demo-grid">
       <article class="demo-card">
-        <div class="video-card demo-preview">
+        <div class="demo-preview">
           <video preload="none" data-src="./assets/game-demo-unity.mp4" data-poster="game-demo-unity.jpg" playsinline></video>
           <button class="demo-play" type="button" aria-label="播放 Unity 演示：俯视角动作原型"><span>播放演示</span></button>
         </div>
@@ -158,9 +175,9 @@
           <p>在庭院场景中演示角色移动、战斗和技能特效。</p>
         </div>
       </article>
-      <article class="demo-card">
-        <div class="video-card demo-preview">
-          <video preload="none" data-src="./assets/game-demo-godot.mp4" data-poster="game-demo-godot.jpg" playsinline></video>
+      <article class="demo-card demo-card--godot">
+        <div class="demo-preview">
+          <video preload="none" data-src="./assets/game-demo-godot.mp4?rev=20261119-crop" data-poster="game-demo-godot.jpg?rev=20261119-crop" playsinline></video>
           <button class="demo-play" type="button" aria-label="播放 Godot 演示：场景探索与机关解谜"><span>播放演示</span></button>
         </div>
         <div class="demo-copy">
