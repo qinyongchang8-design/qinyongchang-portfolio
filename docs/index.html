@@ -9,21 +9,32 @@
   .rail-toolbar{gap:18px}
   .rail-controls{gap:8px}
   .rail-controls button{
-    min-height:44px;
-    padding:0 14px;
-    border:1px solid var(--line);
+    min-width:104px;
+    min-height:48px;
+    padding:0 19px;
+    border:2px solid var(--acid);
     border-radius:999px;
-    background:transparent;
-    color:inherit;
-    font:500 14px var(--sans);
+    background:#17200d;
+    color:#efffbb;
+    font:700 16px var(--sans);
     white-space:nowrap;
     cursor:pointer;
   }
-  .rail-controls button:hover,.rail-controls button:focus-visible{border-color:var(--acid);color:var(--acid)}
-  .rail-controls button:focus-visible{outline:2px solid var(--acid);outline-offset:3px}
+  .rail-controls button[data-rail-step="1"]{background:var(--acid);color:#17200d}
+  .rail-controls button:hover,.rail-controls button:focus-visible{background:#efffbb;color:#17200d}
+  .rail-controls button:focus-visible{outline:2px solid #efffbb;outline-offset:3px}
+  .aigc-carousel{padding-top:24px}
+  .aigc-carousel .rail-controls{justify-content:flex-end;margin-bottom:13px}
+  .aigc-carousel .ad-viewport{container-type:inline-size}
+  .aigc-carousel .media-rail .video-card{flex-basis:calc((100cqw - 24px)/3);height:470px}
 
+  @media(max-width:900px){
+    .aigc-carousel .media-rail .video-card{flex-basis:calc((100cqw - 12px)/2);height:400px}
+  }
   @media(max-width:560px){
     .media-carousel .carousel-top{align-items:flex-start;gap:12px}
+    .rail-controls button{min-width:90px;padding-inline:14px}
+    .aigc-carousel .media-rail .video-card{flex-basis:82cqw;height:360px}
   }
 </style></head>
 <body>
@@ -43,7 +54,7 @@
   <section class="section-shell work-section" id="work">
     <div class="section-heading"><div class="section-index">02</div><div><p class="eyebrow">SELECTED WORK / 2026</p><h2>游戏商业化广告</h2></div><p class="section-detail">以高密度的视听表达捕获注意力，用结果反推创意迭代。</p></div>
     <div class="lead-case"><div class="lead-case-copy"><p class="case-kicker">FEATURED CASE / 01</p><h3>《九霄仙府》</h3><p>参与游戏商业化广告的完整生产：创意策划、脚本拆解、分镜设计、AI 视觉生成与后期包装。围绕不同卖点持续测试、快速迭代。</p><dl><div><dt>我的职责</dt><dd>创意 / 分镜 / AI 视觉 / 剪辑包装</dd></div><div><dt>项目成果</dt><dd>持续输出商业化广告素材，形成完整视频制作 Workflow。</dd></div></dl></div><article class="video-card lead-video"><video preload="none" data-src="./assets/game-ad-1.mp4?v=20260730-new-boards" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>COMMERCIAL VIDEO / FEATURED</span><strong>九霄仙府 · 广告素材 01</strong></div></article></div>
-    <div class="media-carousel"><div class="carousel-top"><div><p class="eyebrow">MORE PERFORMANCE CREATIVE</p><h3>不同卖点 · 同一目标</h3></div><div class="rail-toolbar">
+    <div class="media-carousel" data-video-carousel><div class="carousel-top"><div><p class="eyebrow">MORE PERFORMANCE CREATIVE</p><h3>不同卖点 · 同一目标</h3></div><div class="rail-toolbar">
         <div class="continuous-badge"><i></i> CONTINUOUS SHOWREEL</div>
         <div class="rail-controls" role="group" aria-label="切换广告视频">
           <button type="button" data-rail-step="-1" aria-controls="adRail">上一项</button>
@@ -61,7 +72,20 @@
 
   <section class="section-shell drama-section"><div class="section-heading"><div class="section-index">03</div><div><p class="eyebrow">AI NARRATIVE</p><h2>AI 影视短剧</h2></div><p class="section-detail">用镜头调度、角色统一与情绪节奏，完成从文本到视听叙事的转化。</p></div><div class="drama-list drama-list-v2"><article class="drama-card"><div class="drama-poster"><img loading="lazy" decoding="async" src="./assets/drama-kindergarten.jpg" alt="穿越兽世，我靠开幼儿园成兽神"><span>01</span></div><div class="drama-description"><p class="eyebrow">AI 短剧 · 玄幻喜剧</p><h3>穿越兽世，我靠开幼儿园成兽神</h3><div class="drama-stat"><strong>5000<span>万+</span></strong><p>红果最高热度 · 收藏 100 万+</p></div><a class="watch-button" href="./assets/drama-kindergarten.mp4" target="_blank">观看片段 <span>↗</span></a></div></article><article class="drama-card"><div class="drama-poster"><img loading="lazy" decoding="async" src="./assets/drama-father-son.jpg" alt="父子双雄"><span>02</span></div><div class="drama-description"><p class="eyebrow">AI 短剧 · 东方玄幻</p><h3>父子双雄</h3><div class="drama-stat"><strong>3000<span>万+</span></strong><p>红果最高热度</p></div><a class="watch-button" href="./assets/drama-father-son.mp4" target="_blank">观看片段 <span>↗</span></a></div></article></div></section>
 
-  <section class="aigc-section"><div class="section-shell"><div class="section-heading"><div class="section-index">04</div><div><p class="eyebrow">EXPERIMENTAL MOTION</p><h2>AIGC 制作</h2></div><p class="section-detail">对画面、动作、转场与风格化表达的持续实验。</p></div><div class="aigc-grid aigc-grid-v2"><article class="video-card"><video preload="none" data-src="./assets/aigc-succubus.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>01 / AI 动画叙事</span><strong>魅魔</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/aigc-cultivation.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>02 / 人物视角转换实验</span><strong>修仙的一天</strong></div></article><article class="video-card"><video preload="none" data-src="./assets/aigc-showreel.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>03 / AI 画面与转场</span><strong>AIGC 作品集</strong></div></article></div><p class="aigc-statement">不是让 AI 替代创作，<br>而是让它成为更快抵达想象力的路径。</p></div></section>
+  <section class="aigc-section"><div class="section-shell"><div class="section-heading"><div class="section-index">04</div><div><p class="eyebrow">EXPERIMENTAL MOTION</p><h2>AIGC 制作</h2></div><p class="section-detail">对画面、动作、转场与风格化表达的持续实验。</p></div><div class="aigc-carousel" data-video-carousel data-rail-speed="32" data-rail-delay="3200">
+      <div class="rail-controls" role="group" aria-label="切换 AIGC 视频">
+        <button type="button" data-rail-step="-1" aria-controls="aigcRail">上一项</button>
+        <button type="button" data-rail-step="1" aria-controls="aigcRail">下一项</button>
+      </div>
+      <div class="ad-viewport">
+        <div class="media-rail" id="aigcRail">
+          <article class="video-card"><video preload="none" data-src="./assets/aigc-succubus.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>01 / AI 动画叙事</span><strong>魅魔</strong></div></article>
+          <article class="video-card"><video preload="none" data-src="./assets/aigc-character-pv.mp4" data-poster="aigc-character-pv.jpg" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>02</span><strong>游戏人物 PV</strong></div></article>
+          <article class="video-card"><video preload="none" data-src="./assets/aigc-showreel.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>03 / AI 画面与转场</span><strong>AIGC 作品集</strong></div></article>
+          <article class="video-card"><video preload="none" data-src="./assets/aigc-cultivation.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>04 / 人物视角转换实验</span><strong>修仙的一天</strong></div></article>
+        </div>
+      </div>
+    </div><p class="aigc-statement">不是让 AI 替代创作，<br>而是让它成为更快抵达想象力的路径。</p></div></section>
 
   <section class="section-shell brand-section"><div class="section-heading"><div class="section-index">05</div><div><p class="eyebrow">BRAND FILM</p><h2>品牌宣传片</h2></div><p class="section-detail">将产品能力转译为可感知、可记忆的影像体验。</p></div><div class="brand-feature"><article class="video-card"><video preload="none" data-src="./assets/paoman-brand.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>PAOMAN AI / PRODUCT FILM</span><strong>泡漫 AI 平台宣传片</strong></div></article><div class="brand-copy"><p class="case-kicker">CASE STUDY / 05</p><h3>泡漫 AI<br><em>平台宣传片</em></h3><p>参与品牌宣传片创意策划、科技感视觉概念与镜头设计；使用 AI 工具完成画面制作与后期包装，并参与模型效果测试与优化建议输出。</p><div class="tag-list"><span>视觉概念</span><span>镜头脚本</span><span>AI 生成</span><span>后期包装</span></div></div></div></section>
 
@@ -108,144 +132,165 @@
       });
     });
   }
-  const adRail = document.getElementById('adRail');
-  const adViewport = adRail.closest('.ad-viewport');
-  const railControls = document.querySelector('.rail-controls');
-  const originalRailCards = [...adRail.children];
-  originalRailCards.forEach(card => adRail.appendChild(card.cloneNode(true)));
+  function setupVideoCarousel(carousel) {
+    const rail = carousel.querySelector('.media-rail');
+    const viewport = carousel.querySelector('.ad-viewport');
+    const railControls = carousel.querySelector('.rail-controls');
+    const originalRailCards = [...rail.children];
+    originalRailCards.forEach(card => {
+      const clone = card.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      rail.appendChild(clone);
+    });
 
-  const railMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const railSpeed = 48;
-  let railVisible = false;
-  let railOffset = 0;
-  let railLoopWidth = 1;
-  let railStep = 1;
-  let railFrame = 0;
-  let railLastTime = 0;
-  let railPauseUntil = 0;
-  let railPointerId = null;
-  let railStartX = 0;
-  let railStartOffset = 0;
-  let railMoved = false;
+    const railMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const railSpeed = Number(carousel.dataset.railSpeed || 48);
+    let initialDelay = Number(carousel.dataset.railDelay || 0);
+    let railVisible = false;
+    let railOffset = 0;
+    let railLoopWidth = 1;
+    let railStep = 1;
+    let railFrame = 0;
+    let railLastTime = 0;
+    let railPauseUntil = 0;
+    let railPointerId = null;
+    let railStartX = 0;
+    let railStartOffset = 0;
+    let railMoved = false;
 
-  function drawRail() {
-    railOffset = ((railOffset % railLoopWidth) + railLoopWidth) % railLoopWidth;
-    adRail.style.transform = 'translate3d(' + -railOffset + 'px,0,0)';
-  }
+    function drawRail() {
+      railOffset = ((railOffset % railLoopWidth) + railLoopWidth) % railLoopWidth;
+      rail.style.transform = 'translate3d(' + -railOffset + 'px,0,0)';
+    }
 
-  function measureRail() {
-    const firstCard = originalRailCards[0];
-    const firstClone = adRail.children[originalRailCards.length];
-    const loopWidth = firstClone.offsetLeft - firstCard.offsetLeft;
-    if (loopWidth > 0 && loopWidth !== railLoopWidth) {
-      railOffset = railOffset * loopWidth / railLoopWidth;
-      railLoopWidth = loopWidth;
-      railStep = loopWidth / originalRailCards.length;
+    function measureRail() {
+      const firstCard = originalRailCards[0];
+      const firstClone = rail.children[originalRailCards.length];
+      const loopWidth = firstClone.offsetLeft - firstCard.offsetLeft;
+      if (loopWidth > 0 && loopWidth !== railLoopWidth) {
+        railOffset = railOffset * loopWidth / railLoopWidth;
+        railLoopWidth = loopWidth;
+        railStep = loopWidth / originalRailCards.length;
+        drawRail();
+      }
+    }
+
+    function animateRail(time) {
+      if (document.hidden || document.body.classList.contains('modal-active') || !railVisible || railMotion.matches) {
+        railFrame = 0;
+        railLastTime = 0;
+        return;
+      }
+      const elapsed = railLastTime ? time - railLastTime : 0;
+      railLastTime = time;
+      if (railPointerId === null && time >= railPauseUntil) {
+        railOffset += railSpeed * Math.min(64, elapsed) / 1000;
+        drawRail();
+      }
+      railFrame = requestAnimationFrame(animateRail);
+    }
+
+    function resumeRail() {
+      if (!railFrame && !railMotion.matches) railFrame = requestAnimationFrame(animateRail);
+    }
+
+    function pauseRailAfterInput() {
+      railPauseUntil = performance.now() + 4500;
+    }
+
+    function stepRail(direction) {
+      measureRail();
+      const position = railOffset / railStep;
+      const closest = Math.round(position);
+      const target = Math.abs(railOffset - closest * railStep) < 1
+        ? closest + direction
+        : direction > 0 ? Math.ceil(position) : Math.floor(position);
+      railOffset = target * railStep;
       drawRail();
+      pauseRailAfterInput();
     }
-  }
 
-  function animateRail(time) {
-    if (document.hidden || document.body.classList.contains('modal-active') || !railVisible || railMotion.matches) {
-      railFrame = 0;
-      railLastTime = 0;
-      return;
-    }
-    const elapsed = railLastTime ? time - railLastTime : 0;
-    railLastTime = time;
-    if (railPointerId === null && time >= railPauseUntil) {
-      railOffset += railSpeed * Math.min(64, elapsed) / 1000;
-      drawRail();
-    }
-    railFrame = requestAnimationFrame(animateRail);
-  }
-
-  function resumeRail() {
-    if (!railFrame && !railMotion.matches) railFrame = requestAnimationFrame(animateRail);
-  }
-
-  function pauseRailAfterInput() {
-    railPauseUntil = performance.now() + 4500;
-  }
-
-  function stepRail(direction) {
     measureRail();
-    const position = railOffset / railStep;
-    const closest = Math.round(position);
-    const target = Math.abs(railOffset - closest * railStep) < 1
-      ? closest + direction
-      : direction > 0 ? Math.ceil(position) : Math.floor(position);
-    railOffset = target * railStep;
-    drawRail();
-    pauseRailAfterInput();
-  }
+    requestAnimationFrame(measureRail);
+    window.addEventListener('resize', measureRail, { passive: true });
+    if ('ResizeObserver' in window) new ResizeObserver(measureRail).observe(viewport);
+    new IntersectionObserver(([entry]) => {
+      railVisible = entry.isIntersecting;
+      viewport.classList.toggle('rail-active', railVisible);
+      if (railVisible) {
+        if (initialDelay) {
+          railPauseUntil = Math.max(railPauseUntil, performance.now() + initialDelay);
+          initialDelay = 0;
+        }
+        resumeRail();
+      }
+    }, { threshold: 0.02 }).observe(viewport);
+    document.addEventListener('visibilitychange', () => {
+      document.documentElement.classList.toggle('page-hidden', document.hidden);
+      if (!document.hidden && railVisible) resumeRail();
+    });
+    railMotion.addEventListener('change', () => {
+      if (railVisible) resumeRail();
+    });
 
-  measureRail();
-  requestAnimationFrame(measureRail);
-  window.addEventListener('resize', measureRail, { passive: true });
-  if ('ResizeObserver' in window) new ResizeObserver(measureRail).observe(adViewport);
-  new IntersectionObserver(([entry]) => {
-    railVisible = entry.isIntersecting;
-    adViewport.classList.toggle('rail-active', railVisible);
-    if (railVisible) resumeRail();
-  }, { threshold: 0.02 }).observe(adViewport);
-  document.addEventListener('visibilitychange', () => {
-    document.documentElement.classList.toggle('page-hidden', document.hidden);
-    if (!document.hidden && railVisible) resumeRail();
-  });
-  railMotion.addEventListener('change', () => {
-    if (railVisible) resumeRail();
-  });
+    railControls.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => stepRail(Number(button.dataset.railStep)));
+    });
+    railControls.addEventListener('keydown', event => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      stepRail(event.key === 'ArrowLeft' ? -1 : 1);
+    });
 
-  railControls.querySelectorAll('button').forEach(button => {
-    button.addEventListener('click', () => stepRail(Number(button.dataset.railStep)));
-  });
-  railControls.addEventListener('keydown', event => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-    event.preventDefault();
-    stepRail(event.key === 'ArrowLeft' ? -1 : 1);
-  });
+    viewport.addEventListener('wheel', event => {
+      if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      event.preventDefault();
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? viewport.clientWidth : 1;
+      railOffset += event.deltaX * unit;
+      drawRail();
+      pauseRailAfterInput();
+    }, { passive: false });
 
-  adViewport.addEventListener('wheel', event => {
-    if (event.ctrlKey || Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
-    event.preventDefault();
-    const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? adViewport.clientWidth : 1;
-    railOffset += event.deltaX * unit;
-    drawRail();
-    pauseRailAfterInput();
-  }, { passive: false });
-
-  adRail.addEventListener('pointerdown', event => {
-    if (!event.isPrimary || event.button !== 0 || railPointerId !== null) return;
-    railPointerId = event.pointerId;
-    railStartX = event.clientX;
-    railStartOffset = railOffset;
-    railMoved = false;
-  });
-  window.addEventListener('pointermove', event => {
-    if (event.pointerId !== railPointerId) return;
-    const shift = event.clientX - railStartX;
-    if (!railMoved) {
-      if (Math.abs(shift) < 7) return;
-      railMoved = true;
-      adViewport.setPointerCapture(railPointerId);
-      adRail.classList.add('is-dragging');
+    rail.addEventListener('pointerdown', event => {
+      if (!event.isPrimary || event.button !== 0 || railPointerId !== null) return;
+      railPointerId = event.pointerId;
+      railStartX = event.clientX;
+      railStartOffset = railOffset;
+      railMoved = false;
+    });
+    window.addEventListener('pointermove', event => {
+      if (event.pointerId !== railPointerId) return;
+      const shift = event.clientX - railStartX;
+      if (!railMoved) {
+        if (Math.abs(shift) < 7) return;
+        railMoved = true;
+        viewport.setPointerCapture(railPointerId);
+        rail.classList.add('is-dragging');
+      }
+      railOffset = railStartOffset - shift;
+      drawRail();
+    });
+    function finishRailDrag(event) {
+      if (event.pointerId !== railPointerId) return;
+      railPointerId = null;
+      if (railMoved) pauseRailAfterInput();
+      rail.classList.remove('is-dragging');
+      if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
     }
-    railOffset = railStartOffset - shift;
-    drawRail();
-  });
-  function finishRailDrag(event) {
-    if (event.pointerId !== railPointerId) return;
-    railPointerId = null;
-    if (railMoved) pauseRailAfterInput();
-    adRail.classList.remove('is-dragging');
-    if (adViewport.hasPointerCapture(event.pointerId)) adViewport.releasePointerCapture(event.pointerId);
+    window.addEventListener('pointerup', finishRailDrag);
+    window.addEventListener('pointercancel', finishRailDrag);
+    viewport.addEventListener('lostpointercapture', event => {
+      if (event.target === viewport) finishRailDrag(event);
+    });
+
+    rail.addEventListener('click', event => {
+      if (railMoved) return;
+      const video = event.target.closest('.video-card')?.querySelector('video');
+      if (video) openMedia('video', video.currentSrc || video.src || video.dataset.src);
+    });
+    return () => { if (railVisible) resumeRail(); };
   }
-  window.addEventListener('pointerup', finishRailDrag);
-  window.addEventListener('pointercancel', finishRailDrag);
-  adViewport.addEventListener('lostpointercapture', event => {
-    if (event.target === adViewport) finishRailDrag(event);
-  });
+  const videoCarouselResumers = [...document.querySelectorAll('[data-video-carousel]')].map(setupVideoCarousel);
   const modal=document.getElementById('mediaModal'),stage=modal.querySelector('.modal-stage');
   const formatTime=value=>{if(!Number.isFinite(value))return '00:00';const minutes=Math.floor(value/60);const seconds=Math.floor(value%60);return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`};
   const sectionTargets={drama:'.drama-section',aigc:'.aigc-section',brand:'.brand-section',storyboard:'.storyboard-section',visual:'.visual-section'};
@@ -272,7 +317,7 @@
   const deferredVideos=[...document.querySelectorAll('main video[data-src]')];
   /* Card videos stay poster-first. Posters are applied only near the viewport, so
      sixteen thumbnails never compete with the opening film on a cold connection. */
-  const posterForVideo=video=>{const filename=(video.dataset.src||'').split('/').pop().split('?')[0];return filename?`${runtimeAssets}/posters/${filename.replace(/\.mp4$/i,'.jpg')}`:''};
+  const posterForVideo=video=>{if(video.dataset.poster)return `${runtimeAssets}/${video.dataset.poster}`;const filename=(video.dataset.src||'').split('/').pop().split('?')[0];return filename?`${runtimeAssets}/posters/${filename.replace(/\.mp4$/i,'.jpg')}`:''};
   const posterObserver='IntersectionObserver'in window?new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;const video=entry.target,poster=posterForVideo(video);if(poster&&!video.poster)video.poster=poster;posterObserver.unobserve(video)}),{rootMargin:'380px 0px',threshold:.01}):null;
   deferredVideos.forEach(video=>{if(posterObserver)posterObserver.observe(video);else{const poster=posterForVideo(video);if(poster)video.poster=poster}});
 
@@ -298,7 +343,7 @@
   /* Reuse the warmed player inside the existing modal UI. The player controls keep
      their current appearance, but seeking now has one rAF-bounded code path. */
   const releaseSharedModalPlayer=()=>{sharedPlayerCleanup();sharedPlayerCleanup=()=>{};if(stage.contains(sharedModalPlayer)){sharedModalPlayer.pause();sharedModalPlayer.preload='metadata';sharedModalPlayer.controls=false;mediaPreloadPool.appendChild(sharedModalPlayer)}};
-  function closeModal(){releaseSharedModalPlayer();stage.replaceChildren();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-active');if(railVisible)resumeRail()}
+  function closeModal(){releaseSharedModalPlayer();stage.replaceChildren();modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.classList.remove('modal-active');videoCarouselResumers.forEach(resume=>resume())}
   function openMedia(type,src,alt){
     if(type!=='video'){stage.replaceChildren();stage.innerHTML=`<img src="${src}" alt="${alt||'作品图片'}" draggable="false">`;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');return}
     releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=false;try{player.currentTime=0}catch{};
@@ -329,7 +374,7 @@
     document.documentElement.classList.add('cinematic-ready');
     requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.add('opening-play')));
     const cinematicRoots=[...document.querySelectorAll('.work-section,.drama-section,.aigc-section,.brand-section,.storyboard-section,.visual-section,.contact-page')];
-    const kineticItemSelector='.lead-case-copy,.lead-case .video-card,.media-carousel,.transfer-row,.drama-card,.aigc-grid .video-card,.aigc-statement,.brand-feature,.story-group,.visual-flow,.contact-card';
+    const kineticItemSelector='.lead-case-copy,.lead-case .video-card,.media-carousel,.transfer-row,.drama-card,.aigc-carousel,.aigc-statement,.brand-feature,.story-group,.visual-flow,.contact-card';
     cinematicRoots.forEach(root=>{
       root.classList.add('cinematic-chapter');
       const heading=root.querySelector('.section-heading');
@@ -359,9 +404,6 @@
   document.querySelectorAll('main video:not(.hero-video)').forEach(video=>{video.controls=false;video.setAttribute('controlslist','nodownload noplaybackrate noremoteplayback');video.setAttribute('disablepictureinpicture','');video.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openMedia('video',video.currentSrc||video.src||video.dataset.src)})});
   const openNativeBrandVideo=src=>{releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=true;try{player.currentTime=0}catch{};stage.replaceChildren(player);modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');player.play().catch(()=>{})};
   const brandVideo=document.querySelector('.brand-feature video');if(brandVideo)brandVideo.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openNativeBrandVideo(brandVideo.currentSrc||brandVideo.src||brandVideo.dataset.src)},true);
-  /* Rail videos intentionally ignore direct pointer events while the strip is draggable.
-     Open the card itself on a tap/click that was not a drag. */
-  adRail.addEventListener('click',event=>{if(railMoved)return;const card=event.target.closest('.video-card'),video=card?.querySelector('video');if(video)openMedia('video',video.currentSrc||video.src||video.dataset.src)});
   document.querySelectorAll('.drama-poster img,.story-pair img,.marquee img').forEach(image=>image.addEventListener('click',()=>openMedia('image',image.dataset.fullsrc||image.currentSrc||image.src,image.alt)));
   document.querySelectorAll('.watch-button').forEach(button=>{const source=button.getAttribute('href');button.dataset.src=source;const warmSource=eager=>{const primer=document.createElement('video');primer.preload='none';primer.dataset.src=source;warmVideo(primer,eager)};button.removeAttribute('href');button.removeAttribute('target');button.setAttribute('role','button');button.addEventListener('pointerenter',()=>warmSource(false),{once:true});button.addEventListener('focus',()=>warmSource(false),{once:true});button.addEventListener('pointerdown',()=>warmSource(true),{once:true});button.addEventListener('click',event=>{event.preventDefault();openMedia('video',source)})});
   /* Lightweight SplashCursor: event-driven liquid trails, without a permanent WebGL simulation. */
