@@ -36,12 +36,80 @@
     .rail-controls button{min-width:90px;padding-inline:14px}
     .aigc-carousel .media-rail .video-card{flex-basis:82cqw;height:360px}
   }
+  .nav-wrap .nav-links{grid-template-columns:repeat(10,minmax(0,1fr))}
+  .game-demo-section{scroll-margin-top:76px}
+  .game-demo-section .section-heading h2{text-wrap:balance}
+  .demo-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:clamp(16px,2.25vw,32px);
+    margin-top:clamp(22px,4vw,48px);
+  }
+  .demo-card{
+    min-width:0;
+    overflow:hidden;
+    border:1px solid rgba(217,255,87,.23);
+    border-radius:22px 4px 22px 4px;
+    background:linear-gradient(135deg,#1b2316,#101710 76%);
+  }
+  .game-demo-section .demo-preview{aspect-ratio:16/10;border-radius:0;background:#080d09}
+  .game-demo-section .demo-preview video{object-fit:contain;filter:none;transform:none;pointer-events:none!important}
+  .demo-play{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    display:flex;
+    align-items:flex-end;
+    justify-content:flex-end;
+    padding:clamp(12px,2vw,22px);
+    border:0;
+    background:transparent;
+    cursor:pointer;
+  }
+  .demo-play span{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    min-height:42px;
+    padding:0 14px;
+    border:1px solid var(--acid);
+    border-radius:999px;
+    background:rgba(12,18,10,.9);
+    color:var(--acid);
+    font:700 13px var(--sans);
+  }
+  .demo-play span::before{
+    content:'';
+    border-top:5px solid transparent;
+    border-bottom:5px solid transparent;
+    border-left:8px solid currentColor;
+  }
+  .demo-play:hover span,.demo-play:focus-visible span{background:var(--acid);color:#111810}
+  .demo-play:focus-visible{outline:2px solid var(--acid);outline-offset:-4px}
+  .demo-copy{padding:clamp(17px,2.3vw,30px);border-top:1px solid rgba(217,255,87,.16)}
+  .demo-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .demo-engine{
+    padding:5px 10px;
+    border:1px solid rgba(217,255,87,.35);
+    border-radius:4px;
+    color:var(--acid);
+    font:500 12px var(--mono);
+  }
+  .demo-meta time{color:#c6ceba;font:12px var(--mono)}
+  .demo-copy h3{margin:15px 0 7px;color:#f1f2e8;font:500 clamp(21px,2.2vw,32px)/1.2 var(--serif)}
+  .demo-copy p{margin:0;color:#c1c9b8;font-size:14px;line-height:1.65}
+
+  @media(max-width:760px){
+    .nav-wrap .nav-links{justify-content:flex-start}
+    .nav-wrap .nav-links a:nth-child(6){display:inline-flex}
+    .demo-grid{grid-template-columns:1fr}
+  }
 </style></head>
 <body>
 <main>
   <section class="hero hero-v2" id="home">
     <video class="hero-video" src="./assets/game-ad-1.mp4?v=20260730-new-boards" poster="./assets/posters/game-ad-1.jpg" preload="auto" autoplay muted loop playsinline></video><div class="hero-overlay hero-overlay-v2"></div>
-      <nav class="nav-wrap" aria-label="作品集目录"><a class="brand" href="#home"><span>QYC</span><i>VISUAL PORTFOLIO / 2026</i></a><div class="nav-links"><a href="#home"><b>01</b>首页</a><a href="#profile"><b>02</b>关于</a><a href="#work"><b>03</b>广告</a><a href="#drama"><b>04</b>短剧</a><a href="#aigc"><b>05</b>AIGC</a><a href="#brand"><b>06</b>品牌</a><a href="#storyboard"><b>07</b>分镜</a><a href="#visual"><b>08</b>视觉</a><a href="#contact" class="nav-contact-link"><b>09</b>联系</a></div></nav>
+      <nav class="nav-wrap" aria-label="作品集目录"><a class="brand" href="#home"><span>QYC</span><i>VISUAL PORTFOLIO / 2026</i></a><div class="nav-links"><a href="#home"><b>01</b>首页</a><a href="#profile"><b>02</b>关于</a><a href="#work"><b>03</b>广告</a><a href="#drama"><b>04</b>短剧</a><a href="#game-demos"><b>05</b>游戏</a><a href="#aigc"><b>06</b>AIGC</a><a href="#brand"><b>07</b>品牌</a><a href="#storyboard"><b>08</b>分镜</a><a href="#visual"><b>09</b>视觉</a><a href="#contact" class="nav-contact-link"><b>10</b>联系</a></div></nav>
     <div class="hero-orbit"><i></i><span>01 / VISUAL STORYTELLING</span><b>✦</b></div>
     <div class="hero-content hero-content-v2"><p class="eyebrow hero-eyebrow">VISUAL STORYTELLING / AI CONTENT / CREATIVE DIRECTION</p><h1>让想象，<br><em>发生在每一帧。</em></h1><div class="hero-footer"><p>商业影像 · AI 影视 · 品牌叙事<br>从创意、分镜到视觉制作与后期包装。</p><a href="#profile" class="scroll-link">MEET THE CREATOR <span>↓</span></a></div></div>
     <div class="hero-ticker"><span>秦永昌</span><span>·</span><span>影像创意</span><span>·</span><span>AI CONTENT CREATOR</span><span>·</span><span>VISUAL STORYTELLING</span></div>
@@ -72,7 +140,39 @@
 
   <section class="section-shell drama-section"><div class="section-heading"><div class="section-index">03</div><div><p class="eyebrow">AI NARRATIVE</p><h2>AI 影视短剧</h2></div><p class="section-detail">用镜头调度、角色统一与情绪节奏，完成从文本到视听叙事的转化。</p></div><div class="drama-list drama-list-v2"><article class="drama-card"><div class="drama-poster"><img loading="lazy" decoding="async" src="./assets/drama-kindergarten.jpg" alt="穿越兽世，我靠开幼儿园成兽神"><span>01</span></div><div class="drama-description"><p class="eyebrow">AI 短剧 · 玄幻喜剧</p><h3>穿越兽世，我靠开幼儿园成兽神</h3><div class="drama-stat"><strong>5000<span>万+</span></strong><p>红果最高热度 · 收藏 100 万+</p></div><a class="watch-button" href="./assets/drama-kindergarten.mp4" target="_blank">观看片段 <span>↗</span></a></div></article><article class="drama-card"><div class="drama-poster"><img loading="lazy" decoding="async" src="./assets/drama-father-son.jpg" alt="父子双雄"><span>02</span></div><div class="drama-description"><p class="eyebrow">AI 短剧 · 东方玄幻</p><h3>父子双雄</h3><div class="drama-stat"><strong>3000<span>万+</span></strong><p>红果最高热度</p></div><a class="watch-button" href="./assets/drama-father-son.mp4" target="_blank">观看片段 <span>↗</span></a></div></article></div></section>
 
-  <section class="aigc-section"><div class="section-shell"><div class="section-heading"><div class="section-index">04</div><div><p class="eyebrow">EXPERIMENTAL MOTION</p><h2>AIGC 制作</h2></div><p class="section-detail">对画面、动作、转场与风格化表达的持续实验。</p></div><div class="aigc-carousel" data-video-carousel data-rail-speed="32" data-rail-delay="3200">
+  <section class="section-shell game-demo-section" id="game-demos" aria-labelledby="game-demo-heading">
+    <div class="section-heading">
+      <div class="section-index">04</div>
+      <div><p class="eyebrow">GAME PROTOTYPES</p><h2 id="game-demo-heading">AI辅助游戏开发demo</h2></div>
+      <p class="section-detail">借助 AI 工具制作的两款游戏原型，展示实际操作与玩法流程。</p>
+    </div>
+    <div class="demo-grid">
+      <article class="demo-card">
+        <div class="video-card demo-preview">
+          <video preload="none" data-src="./assets/game-demo-unity.mp4" data-poster="game-demo-unity.jpg" playsinline></video>
+          <button class="demo-play" type="button" aria-label="播放 Unity 演示：俯视角动作原型"><span>播放演示</span></button>
+        </div>
+        <div class="demo-copy">
+          <div class="demo-meta"><span class="demo-engine">Unity</span><time datetime="PT50S">00:50</time></div>
+          <h3>俯视角动作原型</h3>
+          <p>在庭院场景中演示角色移动、战斗和技能特效。</p>
+        </div>
+      </article>
+      <article class="demo-card">
+        <div class="video-card demo-preview">
+          <video preload="none" data-src="./assets/game-demo-godot.mp4" data-poster="game-demo-godot.jpg" playsinline></video>
+          <button class="demo-play" type="button" aria-label="播放 Godot 演示：场景探索与机关解谜"><span>播放演示</span></button>
+        </div>
+        <div class="demo-copy">
+          <div class="demo-meta"><span class="demo-engine">Godot</span><time datetime="PT3M20S">03:20</time></div>
+          <h3>场景探索与机关解谜</h3>
+          <p>通过场景探索、线索阅读和机关交互推进解谜。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="aigc-section"><div class="section-shell"><div class="section-heading"><div class="section-index">05</div><div><p class="eyebrow">EXPERIMENTAL MOTION</p><h2>AIGC 制作</h2></div><p class="section-detail">对画面、动作、转场与风格化表达的持续实验。</p></div><div class="aigc-carousel" data-video-carousel data-rail-speed="32" data-rail-delay="3200">
       <div class="rail-controls" role="group" aria-label="切换 AIGC 视频">
         <button type="button" data-rail-step="-1" aria-controls="aigcRail">上一项</button>
         <button type="button" data-rail-step="1" aria-controls="aigcRail">下一项</button>
@@ -87,11 +187,11 @@
       </div>
     </div><p class="aigc-statement">不是让 AI 替代创作，<br>而是让它成为更快抵达想象力的路径。</p></div></section>
 
-  <section class="section-shell brand-section"><div class="section-heading"><div class="section-index">05</div><div><p class="eyebrow">BRAND FILM</p><h2>品牌宣传片</h2></div><p class="section-detail">将产品能力转译为可感知、可记忆的影像体验。</p></div><div class="brand-feature"><article class="video-card"><video preload="none" data-src="./assets/paoman-brand.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>PAOMAN AI / PRODUCT FILM</span><strong>泡漫 AI 平台宣传片</strong></div></article><div class="brand-copy"><p class="case-kicker">CASE STUDY / 05</p><h3>泡漫 AI<br><em>平台宣传片</em></h3><p>参与品牌宣传片创意策划、科技感视觉概念与镜头设计；使用 AI 工具完成画面制作与后期包装，并参与模型效果测试与优化建议输出。</p><div class="tag-list"><span>视觉概念</span><span>镜头脚本</span><span>AI 生成</span><span>后期包装</span></div></div></div></section>
+  <section class="section-shell brand-section"><div class="section-heading"><div class="section-index">06</div><div><p class="eyebrow">BRAND FILM</p><h2>品牌宣传片</h2></div><p class="section-detail">将产品能力转译为可感知、可记忆的影像体验。</p></div><div class="brand-feature"><article class="video-card"><video preload="none" data-src="./assets/paoman-brand.mp4" muted loop playsinline controls></video><div class="video-sheen"></div><div class="video-card-meta"><span>PAOMAN AI / PRODUCT FILM</span><strong>泡漫 AI 平台宣传片</strong></div></article><div class="brand-copy"><p class="case-kicker">CASE STUDY / 05</p><h3>泡漫 AI<br><em>平台宣传片</em></h3><p>参与品牌宣传片创意策划、科技感视觉概念与镜头设计；使用 AI 工具完成画面制作与后期包装，并参与模型效果测试与优化建议输出。</p><div class="tag-list"><span>视觉概念</span><span>镜头脚本</span><span>AI 生成</span><span>后期包装</span></div></div></div></section>
 
-  <section class="section-shell storyboard-section"><div class="section-heading"><div class="section-index">06</div><div><p class="eyebrow">FROM SCRIPT TO SCREEN</p><h2>分镜头设计</h2></div><p class="section-detail">从文字、策划到故事板，让团队在制作开始前看见完整的叙事节奏。</p></div><div class="story-groups"><div class="story-group"><div class="story-group-title"><span>01 / PRE-PRODUCTION</span><h3>文字分镜头剧本</h3><p>用文字确定冲突、节奏与每一镜的叙事功能。</p></div><div class="story-pair"><figure><img loading="lazy" decoding="async" src="./assets/story-1.jpg" alt="文字分镜头剧本"></figure><figure><img loading="lazy" decoding="async" src="./assets/story-2.jpg" alt="文字分镜头剧本"></figure></div></div><div class="story-group"><div class="story-group-title"><span>02 / CREATIVE PLANNING</span><h3>买量游戏策划表</h3><p>先拆解卖点，再把创意转化为可执行的素材方案。</p></div><div class="story-pair"><figure><img loading="lazy" decoding="async" src="./assets/story-3.jpg" alt="买量游戏策划表"></figure><figure><img loading="lazy" decoding="async" src="./assets/story-4.jpg" alt="买量游戏策划表"></figure></div></div><div class="story-group"><div class="story-group-title"><span>03 / VISUAL BOARD</span><h3>故事板</h3><p>以画面、构图和镜头关系预演最终的视觉节奏。</p></div><div class="story-pair"><figure><img loading="lazy" decoding="async" src="./assets/story-5.jpg" alt="故事板"></figure><figure><img loading="lazy" decoding="async" src="./assets/story-6.jpg" alt="故事板"></figure></div></div></div></section>
+  <section class="section-shell storyboard-section"><div class="section-heading"><div class="section-index">07</div><div><p class="eyebrow">FROM SCRIPT TO SCREEN</p><h2>分镜头设计</h2></div><p class="section-detail">从文字、策划到故事板，让团队在制作开始前看见完整的叙事节奏。</p></div><div class="story-groups"><div class="story-group"><div class="story-group-title"><span>01 / PRE-PRODUCTION</span><h3>文字分镜头剧本</h3><p>用文字确定冲突、节奏与每一镜的叙事功能。</p></div><div class="story-pair"><figure><img loading="lazy" decoding="async" src="./assets/story-1.jpg" alt="文字分镜头剧本"></figure><figure><img loading="lazy" decoding="async" src="./assets/story-2.jpg" alt="文字分镜头剧本"></figure></div></div><div class="story-group"><div class="story-group-title"><span>02 / CREATIVE PLANNING</span><h3>买量游戏策划表</h3><p>先拆解卖点，再把创意转化为可执行的素材方案。</p></div><div class="story-pair"><figure><img loading="lazy" decoding="async" src="./assets/story-3.jpg" alt="买量游戏策划表"></figure><figure><img loading="lazy" decoding="async" src="./assets/story-4.jpg" alt="买量游戏策划表"></figure></div></div><div class="story-group"><div class="story-group-title"><span>03 / VISUAL BOARD</span><h3>故事板</h3><p>以画面、构图和镜头关系预演最终的视觉节奏。</p></div><div class="story-pair"><figure><img loading="lazy" decoding="async" src="./assets/story-5.jpg" alt="故事板"></figure><figure><img loading="lazy" decoding="async" src="./assets/story-6.jpg" alt="故事板"></figure></div></div></div></section>
 
-  <section class="visual-section visual-section-v2"><div class="section-shell visual-heading"><div class="section-heading"><div class="section-index">07</div><div><p class="eyebrow">VISUAL DEVELOPMENT</p><h2>视觉设定</h2></div><p class="section-detail">人物、场景与道具共同构成一个可被镜头相信的世界。</p></div></div><div class="visual-flow"><div class="flow-label"><span>01</span><h3>人物设计</h3><p>CHARACTER DESIGN</p></div><div class="marquee"><div class="marquee-track"> <img loading="lazy" decoding="async" data-fullsrc="./assets/character-1.jpg" src="./assets/visual-thumbs/character-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-2.jpg" src="./assets/visual-thumbs/character-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-3.jpg" src="./assets/visual-thumbs/character-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-4.jpg" src="./assets/visual-thumbs/character-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-5.jpg" src="./assets/visual-thumbs/character-5.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-6.jpg" src="./assets/visual-thumbs/character-6.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-7.jpg" src="./assets/visual-thumbs/character-7.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-8.jpg" src="./assets/visual-thumbs/character-8.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-9.jpg" src="./assets/visual-thumbs/character-9.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-10.jpg" src="./assets/visual-thumbs/character-10.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-1.jpg" src="./assets/visual-thumbs/character-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-2.jpg" src="./assets/visual-thumbs/character-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-3.jpg" src="./assets/visual-thumbs/character-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-4.jpg" src="./assets/visual-thumbs/character-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-5.jpg" src="./assets/visual-thumbs/character-5.jpg"></div></div></div><div class="visual-flow inverse"><div class="flow-label"><span>02</span><h3>场景设计</h3><p>ENVIRONMENT DESIGN</p></div><div class="marquee"><div class="marquee-track slow"> <img loading="lazy" decoding="async" data-fullsrc="./assets/scene-1.jpg" src="./assets/visual-thumbs/scene-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-2.jpg" src="./assets/visual-thumbs/scene-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-3.jpg" src="./assets/visual-thumbs/scene-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-4.jpg" src="./assets/visual-thumbs/scene-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-5.jpg" src="./assets/visual-thumbs/scene-5.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-6.jpg" src="./assets/visual-thumbs/scene-6.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-7.jpg" src="./assets/visual-thumbs/scene-7.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-1.jpg" src="./assets/visual-thumbs/scene-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-2.jpg" src="./assets/visual-thumbs/scene-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-3.jpg" src="./assets/visual-thumbs/scene-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-4.jpg" src="./assets/visual-thumbs/scene-4.jpg"></div></div></div><div class="visual-flow"><div class="flow-label"><span>03</span><h3>道具设计</h3><p>PROP DESIGN</p></div><div class="marquee"><div class="marquee-track reverse"> <img loading="lazy" decoding="async" data-fullsrc="./assets/prop-1.jpg" src="./assets/visual-thumbs/prop-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-2.jpg" src="./assets/visual-thumbs/prop-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-3.jpg" src="./assets/visual-thumbs/prop-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-4.jpg" src="./assets/visual-thumbs/prop-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-5.jpg" src="./assets/visual-thumbs/prop-5.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-6.jpg" src="./assets/visual-thumbs/prop-6.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-1.jpg" src="./assets/visual-thumbs/prop-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-2.jpg" src="./assets/visual-thumbs/prop-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-3.jpg" src="./assets/visual-thumbs/prop-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-4.jpg" src="./assets/visual-thumbs/prop-4.jpg"></div></div></div></section>
+  <section class="visual-section visual-section-v2"><div class="section-shell visual-heading"><div class="section-heading"><div class="section-index">08</div><div><p class="eyebrow">VISUAL DEVELOPMENT</p><h2>视觉设定</h2></div><p class="section-detail">人物、场景与道具共同构成一个可被镜头相信的世界。</p></div></div><div class="visual-flow"><div class="flow-label"><span>01</span><h3>人物设计</h3><p>CHARACTER DESIGN</p></div><div class="marquee"><div class="marquee-track"> <img loading="lazy" decoding="async" data-fullsrc="./assets/character-1.jpg" src="./assets/visual-thumbs/character-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-2.jpg" src="./assets/visual-thumbs/character-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-3.jpg" src="./assets/visual-thumbs/character-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-4.jpg" src="./assets/visual-thumbs/character-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-5.jpg" src="./assets/visual-thumbs/character-5.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-6.jpg" src="./assets/visual-thumbs/character-6.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-7.jpg" src="./assets/visual-thumbs/character-7.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-8.jpg" src="./assets/visual-thumbs/character-8.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-9.jpg" src="./assets/visual-thumbs/character-9.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-10.jpg" src="./assets/visual-thumbs/character-10.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-1.jpg" src="./assets/visual-thumbs/character-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-2.jpg" src="./assets/visual-thumbs/character-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-3.jpg" src="./assets/visual-thumbs/character-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-4.jpg" src="./assets/visual-thumbs/character-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/character-5.jpg" src="./assets/visual-thumbs/character-5.jpg"></div></div></div><div class="visual-flow inverse"><div class="flow-label"><span>02</span><h3>场景设计</h3><p>ENVIRONMENT DESIGN</p></div><div class="marquee"><div class="marquee-track slow"> <img loading="lazy" decoding="async" data-fullsrc="./assets/scene-1.jpg" src="./assets/visual-thumbs/scene-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-2.jpg" src="./assets/visual-thumbs/scene-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-3.jpg" src="./assets/visual-thumbs/scene-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-4.jpg" src="./assets/visual-thumbs/scene-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-5.jpg" src="./assets/visual-thumbs/scene-5.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-6.jpg" src="./assets/visual-thumbs/scene-6.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-7.jpg" src="./assets/visual-thumbs/scene-7.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-1.jpg" src="./assets/visual-thumbs/scene-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-2.jpg" src="./assets/visual-thumbs/scene-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-3.jpg" src="./assets/visual-thumbs/scene-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/scene-4.jpg" src="./assets/visual-thumbs/scene-4.jpg"></div></div></div><div class="visual-flow"><div class="flow-label"><span>03</span><h3>道具设计</h3><p>PROP DESIGN</p></div><div class="marquee"><div class="marquee-track reverse"> <img loading="lazy" decoding="async" data-fullsrc="./assets/prop-1.jpg" src="./assets/visual-thumbs/prop-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-2.jpg" src="./assets/visual-thumbs/prop-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-3.jpg" src="./assets/visual-thumbs/prop-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-4.jpg" src="./assets/visual-thumbs/prop-4.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-5.jpg" src="./assets/visual-thumbs/prop-5.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-6.jpg" src="./assets/visual-thumbs/prop-6.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-1.jpg" src="./assets/visual-thumbs/prop-1.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-2.jpg" src="./assets/visual-thumbs/prop-2.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-3.jpg" src="./assets/visual-thumbs/prop-3.jpg"><img loading="lazy" decoding="async" data-fullsrc="./assets/prop-4.jpg" src="./assets/visual-thumbs/prop-4.jpg"></div></div></div></section>
 
   <section class="contact-page" id="contact"><div class="contact-top"><p class="eyebrow">08 / CONTACT</p><span>AVAILABLE FOR NEW PROJECTS</span></div><div class="contact-heading"><h2>联系<em>我</em></h2><p>期待与有想象力的团队一起，<br>把下一个好故事变成影像。</p></div><div class="contact-cards"><a href="tel:17655985812" class="contact-card"><span>PHONE</span><strong>176 5598 5812</strong><b>↗</b></a><a href="mailto:1251389612@qq.com" class="contact-card"><span>EMAIL</span><strong>1251389612@qq.com</strong><b>↗</b></a></div><footer><span>QIN YONGCHANG / VISUAL PORTFOLIO</span><small>© 2026</small></footer></section>
 </main>
@@ -373,8 +473,8 @@
   if(!cinematicReduced&&'IntersectionObserver' in window){
     document.documentElement.classList.add('cinematic-ready');
     requestAnimationFrame(()=>requestAnimationFrame(()=>document.documentElement.classList.add('opening-play')));
-    const cinematicRoots=[...document.querySelectorAll('.work-section,.drama-section,.aigc-section,.brand-section,.storyboard-section,.visual-section,.contact-page')];
-    const kineticItemSelector='.lead-case-copy,.lead-case .video-card,.media-carousel,.transfer-row,.drama-card,.aigc-carousel,.aigc-statement,.brand-feature,.story-group,.visual-flow,.contact-card';
+    const cinematicRoots=[...document.querySelectorAll('.work-section,.drama-section,.game-demo-section,.aigc-section,.brand-section,.storyboard-section,.visual-section,.contact-page')];
+    const kineticItemSelector='.lead-case-copy,.lead-case .video-card,.media-carousel,.transfer-row,.drama-card,.demo-card,.aigc-carousel,.aigc-statement,.brand-feature,.story-group,.visual-flow,.contact-card';
     cinematicRoots.forEach(root=>{
       root.classList.add('cinematic-chapter');
       const heading=root.querySelector('.section-heading');
@@ -402,6 +502,12 @@
     }
   }
   document.querySelectorAll('main video:not(.hero-video)').forEach(video=>{video.controls=false;video.setAttribute('controlslist','nodownload noplaybackrate noremoteplayback');video.setAttribute('disablepictureinpicture','');video.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();openMedia('video',video.currentSrc||video.src||video.dataset.src)})});
+  document.querySelectorAll('.demo-play').forEach(button => {
+    const video = button.parentElement.querySelector('video');
+    button.addEventListener('pointerenter', () => warmVideo(video), { once: true });
+    button.addEventListener('focus', () => warmVideo(video), { once: true });
+    button.addEventListener('click', () => openMedia('video', video.dataset.src));
+  });
   const openNativeBrandVideo=src=>{releaseSharedModalPlayer();const player=stageSharedVideo(src,true);player.controls=true;try{player.currentTime=0}catch{};stage.replaceChildren(player);modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.classList.add('modal-active');player.play().catch(()=>{})};
   const brandVideo=document.querySelector('.brand-feature video');if(brandVideo)brandVideo.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();openNativeBrandVideo(brandVideo.currentSrc||brandVideo.src||brandVideo.dataset.src)},true);
   document.querySelectorAll('.drama-poster img,.story-pair img,.marquee img').forEach(image=>image.addEventListener('click',()=>openMedia('image',image.dataset.fullsrc||image.currentSrc||image.src,image.alt)));
